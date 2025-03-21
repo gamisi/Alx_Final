@@ -39,6 +39,40 @@ python manage.py createsuperuser
 #Run Development Server
 python manage.py runserver #visit http://127.0.0.1:8000/ on your browser  
 
+#Folder Structure
+
+ALX_Final/
+│── garage_management_system/ # Main app (models, views, templates)
+│── garage/           # app
+│── static/           # Static files (CSS, JS, images)
+│── templates/        # HTML templates (base.html)
+# │── media/            # Uploaded customer/vehicle images
+│── db.sqlite3        # SQLite database
+│── manage.py         # Django management script
+│── requirements.txt  # Python dependencies
+│── README.md         # Project documentation
+
+
+🤝 Contributing
+    We welcome contributions!
+
+    Fork the repo
+    Create a new branch (feature-xyz)
+    Make changes and submit a Pull Request 🚀
+
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'your_pythonanywhere_db_name',
+        'USER': 'your_pythonanywhere_username',
+        'PASSWORD': 'your_mysql_password',
+        'HOST': 'your_pythonanywhere_mysql_host',
+        'PORT': '',
+    }
+}
+'''
+
 
 
 
