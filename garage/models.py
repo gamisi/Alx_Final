@@ -1,6 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 # Create your models here.
+from accounts.models import CustomUser
 
 class Model(models.Model):
     model_name = models.CharField(max_length=100)
@@ -18,7 +19,7 @@ class Make(models.Model):
 
 class Vehicle(models.Model):
     reg_no = models.CharField(max_length=100)
-    user_id = models.ForeignKey(User, null=True, on_delete=models.RESTRICT, related_name='vehicles')
+    user_id = models.ForeignKey(CustomUser, null=True, on_delete=models.RESTRICT, related_name='vehicles')
     model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL, related_name='vehicles')
     make = models.ForeignKey(Make, null=True, on_delete=models.SET_NULL, related_name='vehicles')
     year = models.IntegerField(null=True)
