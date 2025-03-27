@@ -38,10 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'garage.apps.GarageConfig'
+    'garage.apps.GarageConfig',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_filters'
+    'django_filters',
 ]
 
 MIDDLEWARE = [

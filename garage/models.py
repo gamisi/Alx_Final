@@ -18,9 +18,9 @@ class Make(models.Model):
 
 class Vehicle(models.Model):
     reg_no = models.CharField(max_length=100)
-    user_id = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='vehicles')
-    model = models.ForeignKey(Model, null=True, on_delete=models.CASCADE, related_name='vehicles')
-    make = models.ForeignKey(Make, null=True, on_delete=models.CASCADE, related_name='vehicles')
+    user_id = models.ForeignKey(User, null=True, on_delete=models.RESTRICT, related_name='vehicles')
+    model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL, related_name='vehicles')
+    make = models.ForeignKey(Make, null=True, on_delete=models.SET_NULL, related_name='vehicles')
     year = models.IntegerField(null=True)
     
     def __str__(self):
@@ -43,9 +43,9 @@ class MaintenanceType(models.Model):
 
 class Maintenance(models.Model):
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.RESTRICT, related_name='maintenance')
-    mechanic = models.ForeignKey(Technician, on_delete=models.CASCADE, related_name='maintenance')
+    mechanic = models.ForeignKey(Technician, on_delete=models.RESTRICT, related_name='maintenance')
     maintenance_date = models.DateTimeField(auto_now_add=True)
-    maintenance_type = models.ForeignKey(MaintenanceType, on_delete=models.CASCADE, related_name='maintenance')
+    maintenance_type = models.ForeignKey(MaintenanceType, on_delete=models.RESTRICT, related_name='maintenance')
     mileage_type = models.IntegerField()
 
     def __str__(self):
