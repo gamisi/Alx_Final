@@ -8,6 +8,12 @@ from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
+from django.urls import reverse
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
 
 # Create your views here.
 class UserViewset(viewsets.ModelViewSet):
@@ -30,7 +36,22 @@ class UserLoginView(APIView):
 
 # Create your views here.
 def register(request):
-    return render(request, 'accounts/register.html')
+    return render(request, 'registration/register.html')
 
 def home (request):
-    return render(request, 'accounts/login.html')
+    return render(request, 'registration/login.html')
+
+def custom_logout(request):
+    logout(request)  # This will log the user out
+    return redirect(reverse('login'))  # Redirect to the login page
+
+"""
+@login_required
+def DashboardView(request):
+    return render(request, 'accounts/dashboard.html')
+"""
+
+#class based view
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounts/dashboard.html'
+    login_url =  '/login/'

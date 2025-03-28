@@ -1,0 +1,170 @@
+{% load static %}
+<style>
+    .sidebar .nav-link:hover {
+
+        background:dodgerblue;
+
+    }
+
+</style>
+<ul class="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center" href="">
+        
+        <div class="sidebar-brand-icon">
+            <img class="img-profile rounded-circle" width='30' height='30'  src="{% static 'image/undraw_profile.svg' %}">
+        </div>
+        &nbsp;
+        <div class="sidebar-brand-text my-0 font-weight-normal" style='font-size:12px; text-transform:capitalize;'>&nbsp;Garage Management</div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="">
+            <i class="fa fa-home text-white"></i>
+            <span class='font-weight-normal' style="font-size:12px !important;">Dashboard</span>
+        </a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">    
+       
+        <li class="nav-item">
+
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
+                aria-expanded="true" aria-controls="collapsePages">
+                <i class="fa fa-car text-white"></i>
+                <span style="font-size:12px !important;">Fleet management</span>                
+            </a>
+
+            <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-car"></i>
+                        &nbsp;List Fleet
+                    </a>
+
+                </div>
+            </div>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block my-0">
+        <!-- Nav Item - Pages Collapse Menu -->      
+        
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#UserManagement"
+                aria-expanded="true" aria-controls="collapsePages">
+                <i class="fa fa-users text-white"></i>
+                <span style="font-size:12px !important;">User Management</span>
+            </a>
+            <div id="UserManagement" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <!-- <h6 class="collapse-header">Role & Permissions</h6> -->
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-users"></i>&nbsp;list users
+                    </a>
+                    
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-life-ring"></i>&nbsp;Roles
+                    </a>
+
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-life-ring"></i>&nbsp;Permissions
+                    </a>
+
+                </div>
+            </div>
+        </li>        
+        
+        <hr class="sidebar-divider d-none d-md-block my-0">    
+                    
+        <!-- Nav Item - Pages Collapse Menu -->        
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#VehicleManagement"
+                aria-expanded="true" aria-controls="collapsePages">
+                <i class="fa fa-cogs text-white"></i>
+                <span style="font-size:12px !important;">fleet data</span>
+            </a>
+            <div id="VehicleManagement" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <!-- <h6 class="collapse-header">Role & Permissions</h6> -->
+                    
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-building"></i>
+                        <span>models</span>
+                    </a>
+
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-building"></i>
+                        <span>Make</span>
+                    </a>
+
+                </div>
+            </div>
+        </li>
+
+        <hr class="sidebar-divider d-none d-md-block my-0">    
+
+        <!-- Nav Item - Pages Collapse Menu -->        
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#Reports"
+                aria-expanded="true" aria-controls="collapsePages">
+                <i class="fa fa-bar-chart text-white"></i>
+                <span style="font-size:12px !important;">Reports</span>
+            </a>
+            <div id="Reports" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                                        
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-building"></i>
+                        <span>Fleet Reports</span>
+                    </a>
+
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-building"></i>
+                        <span>Job Reports</span>
+                    </a>
+
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-building"></i>
+                        <span>Inspection Reports</span>
+                    </a>
+
+                    
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-building"></i>
+                        <span>Requisition Reports</span>
+                    </a>
+
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-building"></i>
+                        <span>Maintenance Reports</span>
+                    </a>
+                </div>
+            </div>
+        </li>
+        
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block my-0">
+
+        <li class="nav-item ">
+            <a class="nav-link" href="">
+                <i class="fa fa-refresh text-white text-xs"></i>
+                <span class='font-weight-normal' style="font-size:12px !important;">Activity log</span>
+            </a>
+        </li>
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline mt-2">
+            <button class="rounded-circle rounded-circle-sm border-0" id="sidebarToggle"></button>
+        </div>
+</ul>

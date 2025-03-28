@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_filters',
     'crispy_forms',
     'crispy_bootstrap5',
+    'api.apps.ApiConfig',
 
 ]
 
@@ -82,7 +83,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'garage_management_system.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -127,6 +127,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = 'dashboard'
+
+LOGOUT_REDIRECT_URL ='accounts/login'
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Internationalization
@@ -157,3 +162,4 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
