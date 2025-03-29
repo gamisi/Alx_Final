@@ -22,6 +22,6 @@ urlpatterns =  [
     # path('dashboard/', views.DashboardView, name='dashboard'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('logout/', custom_logout, name='logout'),
-    path('api/', include(router.urls)),
+    # path('api/', include(router.urls)),
 
 ]

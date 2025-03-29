@@ -12,7 +12,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
-    # confirm_password = serializers.CharField()
 
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:

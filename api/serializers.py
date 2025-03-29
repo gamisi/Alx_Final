@@ -5,12 +5,13 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import ValidationError
 
+
 class CustomUserSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True)
     username = serializers.CharField(read_only=True)
     confirm_password = serializers.CharField(write_only=True)
-
+    
     class Meta:
         model = CustomUser
         fields =  ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'confirm_password']
@@ -30,8 +31,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
 
+        """
         print(type(data))  # Check the type of 'data'
         print(data)        # Check what 'data' contains
+        """
 
         password = data.get('password')
         confirm_passowrd = data.get('confirm_password')
