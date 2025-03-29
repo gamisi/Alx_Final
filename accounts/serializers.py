@@ -9,7 +9,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields =  ['id', 'username', 'first_name', 'last_name', 'email', 'password']
 
-
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
