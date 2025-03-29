@@ -12,11 +12,13 @@ from rest_framework.reverse import reverse
 
 class APIRoot(APIView):
     #permission_classes = [IsAuthenticated]
-    
     def get(self, request):
         if request.user.is_authenticated:
             # Redirect to the root URL
-            return redirect(reverse('api:api-root'))  # Or redirect to a specific named URL using reverse()
+            """return redirect(reverse('api:api-root'))""" 
+            next_url = "/api/" 
+            api_root_url = f"{request.build_absolute_uri(reverse('api:api-root'))}?next={next_url}"
+            return redirect(api_root_url)
         else:
             return Response({"message": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)      
     

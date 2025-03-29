@@ -16,12 +16,11 @@ def redirect_to_login(request):
 
 urlpatterns =  [
 
-    path('', redirect_to_login, name='home'),
+    path('', redirect_to_login, name='/login'),
     path('api/login', UserLoginView.as_view(), name='login'),
-    path('register/', views.register, name='register'),
-    # path('dashboard/', views.DashboardView, name='dashboard'),
+    # path('register/', views.register, name='register'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('logout/', custom_logout, name='logout'),
-    # path('api/', include(router.urls)),
+    path('sign-up/', views.sign_up, name='sign_up'),
 
 ]

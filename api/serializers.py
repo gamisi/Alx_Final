@@ -51,7 +51,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             raise ValidationError("Email has already been taken")
         return value
     
-    # This method ensures passowrd is hashed
+    # This method ensures passowrd is hashed and username is generated
     def create(self, validated_data):
         password = validated_data.pop('password')
         confirm_password = validated_data.pop('confirm_password')

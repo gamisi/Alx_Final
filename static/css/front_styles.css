@@ -7,3 +7,61 @@ h1,h2,h3,h4,h5 {
 
     font-family: 'Quicksand';
 }
+
+form input {
+
+    border:1px solid #EFEFEF !important;
+}
+
+form input:focus {
+
+    border:1px solid dodgerblue !important;
+    box-shadow: none !important;
+}
+
+.card {
+
+    width: 50% !important;
+    height: auto;
+    background:#FFFFFF !important;
+
+}
+
+.form-label {
+
+    margin-bottom: 0px !important;
+    font-size: 14px;
+    text-transform: lowercase;
+    font-weight: 500;
+}
+
+.alert-danger ul li {
+
+    font-size:12px !important;
+}
+
+button {
+
+    margin-top:10px !important;
+}
+
+#div_id_username, 
+#div_id_password1, 
+#div_id_password, 
+#div_id_first_name, 
+#div_id_last_name, 
+#div_id_email,
+#div_id_password2 {
+
+    margin-bottom: 5px !important;
+}
+
+
+
+@media screen and (min-width:320px) and (max-width:1000px) {
+
+    .card {
+
+        width:100% !important;            
+    }       
+}

@@ -1,28 +1,30 @@
 {% extends "front_base.html" %}
-{% load crispy_forms_tags %}
-{% block title %} Login {% endblock %}:
+{% block title %} Registration {% endblock %}:
 {% block content %}
-<div class="container-fluid my-5 py-5">
+{% load crispy_forms_tags %}
+
+<div class="container-fluid p-5">
     <div class="container d-flex justify-content-center align-items-center px-5">
-        
+
         <div class="card border-0 shadow-lg">
-            <!--
+
+            <!-- 
             <div class="card-header bg-primary border-0">
-                <h4 class="fw-bold text-center text-white">Login Here</h4>
+                <h4 class="fw-bold text-center text-white">Register</h4>
             </div>
             -->
+            
             <div class="card-body">
                 
                 <form method="post">
                     {% csrf_token %}{{form|crispy}}        
-                    <button type="submit" class="btn btn-primary w-100 fw-bold">Login</button>
-                    <p class="d-block text-center pt-2" style="font-size:12px; font-weight:700;">Don't have an account | <a href="/sign-up">sign-up</a></p>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">Register</button>
+                    <p class="d-block text-center pt-2" style="font-size:12px; font-weight:700;">Already have an account ? | <a href="/login">Login Here</a></p>
                 </form>
 
             </div>
-        </div>
+        </div>        
 
     </div>
 </div>
-
 {% endblock %}

@@ -14,6 +14,9 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
+from .forms import RegistrationForm
+from django.contrib.auth import login, logout , authenticate
+import os
 
 # Create your views here.
 class UserViewset(viewsets.ModelViewSet):
@@ -34,16 +37,42 @@ class UserLoginView(APIView):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Create your views here.
+"""
 def register(request):
     return render(request, 'registration/register.html')
 
-def home (request):
-    return render(request, 'registration/login.html')
+def login (request):
+    page_title = os.path.splitext(os.path.basename('registration/sign_up.html'))[0].capitalize()
+    context = {
 
+        'page_title': page_title,
+    }
+    return render(request, 'registration/login.html', context)
+"""
 def custom_logout(request):
     logout(request)  # This will log the user out
     return redirect(reverse('login'))  # Redirect to the login page
+
+def sign_up(request):
+
+    """page_title = os.path.splitext(os.path.basename('registration/sign_up.html'))[0].capitalize()
+    context = {
+
+        'page_title': page_title,
+    }"""
+
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            #login(request, user)
+            return redirect('/sign-up')
+    else:
+        form = RegistrationForm()
+        # context['form'] = form
+
+    return render(request,'registration/sign_up.html', {"form": form})
+
 
 """
 @login_required
