@@ -69,10 +69,8 @@ def sign_up(request):
             return redirect('/sign-up')
     else:
         form = RegistrationForm()
-        # context['form'] = form
-
+            
     return render(request,'registration/sign_up.html', {"form": form})
-
 
 """
 @login_required

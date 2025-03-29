@@ -19,8 +19,8 @@ urlpatterns =  [
     path('', redirect_to_login, name='/login'),
     path('api/login', UserLoginView.as_view(), name='login'),
     # path('register/', views.register, name='register'),
-    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('accounts/dashboard/', DashboardView.as_view(), name='dashboard'),
     path('logout/', custom_logout, name='logout'),
-    path('sign-up/', views.sign_up, name='sign_up'),
+    path('accounts/sign-up/', views.sign_up, name='sign_up'),
 
 ]

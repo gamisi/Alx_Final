@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from accounts.models import CustomUser
-from garage.models import Vehicle, Make, Model, Technician
+from garage.models import Vehicle, Make, Model, Technician, Appointment, Maintenance, MaintenanceType, Repair, Notification
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import ValidationError
@@ -18,7 +18,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
     def generate_username(self, first_name, last_name):
 
-        #Method Genarate base username
+        #Method to Genarate username
         username = f"{first_name.lower()}.{last_name.lower()}"
         current_username = username
         counter = 1
@@ -112,3 +112,39 @@ class ModelSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Model
         fields = ['id', 'model_name', 'model_desc']
+
+class TechnicianSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Technician
+        fields = ['id', 'name','phone_no','specialty']
+
+class AppointmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Appointment
+        fields = ['id', 'user_id', 'vehicle_id', 'appointment_date', 'description']
+
+class MaintenanceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Maintenance
+        fields = ['id', 'vehicle_id', 'mechanic', 'maintenance_date', 'maintenance_type']
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notification
+        fields = ['id', 'user_id', 'message', 'nofitication_date', 'notification_type']
+
+class RepairSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Repair
+        fields = ['id', 'vehicle_id', 'mechanic', 'repair_date', 'repair_cost', 'description']
+
+class MaintenanceTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MaintenanceType
+        fields = ['id', 'maintenance_type_name', 'maintenance_type_cost']
