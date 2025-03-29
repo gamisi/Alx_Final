@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from accounts.models import CustomUser
-from garage.models import Vehicle
+from garage.models import Vehicle, Make, Model, Technician
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
@@ -24,3 +24,15 @@ class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = ['id', 'reg_no', 'owner', 'model', 'make', 'year']
+
+class MakeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Make
+        fields = ['id', 'make_name', 'make_desc']
+
+class ModelSerializer(serializers.ModelSerializer):
+
+    class Meta: 
+        model = Model
+        fields = ['id', 'model_name', 'model_desc']
