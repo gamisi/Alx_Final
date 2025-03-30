@@ -16,7 +16,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from .forms import RegistrationForm
 from django.contrib.auth import login, logout , authenticate
+from django.contrib.auth.mixins import AccessMixin
+from django.contrib.auth.views import LoginView, PasswordResetView
+from django.contrib.auth.forms import PasswordResetForm
 import os
+
 
 # Create your views here.
 class UserViewset(viewsets.ModelViewSet):
@@ -73,6 +77,7 @@ def sign_up(request):
     return render(request,'registration/sign_up.html', {"form": form})
 
 """
+#Function Based View
 @login_required
 def DashboardView(request):
     return render(request, 'accounts/dashboard.html')
@@ -82,3 +87,29 @@ def DashboardView(request):
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/dashboard.html'
     login_url =  '/login/'
+
+    # Pass the logged-in user to the template
+    """def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user  
+        return context"""
+
+"""def password_reset(request):
+    if request.method == 'POST':
+        form = CustomPasswordResetForm(request.POST)
+    else:
+        form = CustomPasswordResetForm()
+
+    return render (request, 'registration/password_reset_form.html', {"form": form})"""
+
+class CustomPasswordResetView(PasswordResetView):
+    form_class = PasswordResetForm
+    template_name = 'registration/password_reset.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        print(self.form_class) #add this print statement.
+        return super().dispatch(request, *args, **kwargs)
+
+
+
+

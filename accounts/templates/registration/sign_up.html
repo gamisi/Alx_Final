@@ -19,8 +19,7 @@
                 <form method="post">
                     {% csrf_token %}{{form|crispy}}        
                     <button type="submit" class="btn btn-primary w-100 fw-bold">Register</button>
-                    <input type="hidden" name="next" value="{{ next }}">
-                    <p class="d-block text-center pt-2" style="font-size:12px; font-weight:700;">Already have an account ? | <a href="/login">Login Here</a></p>
+                    <p class="d-block text-center pt-2 pb-0 mb-0" style="font-size:12px; font-weight:400;">Already have an account ? | <a href="/login">Login Here</a></p>
                 </form>
 
             </div>

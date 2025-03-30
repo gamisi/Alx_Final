@@ -16,11 +16,17 @@
                 <form method="post">
                     {% csrf_token %}{{form|crispy}}        
                     <button type="submit" class="btn btn-primary w-100 fw-bold">Login</button>
-                    <p class="d-block text-center pt-2" style="font-size:12px; font-weight:700;">Don't have an account | <a href="{% url 'sign_up'%}">sign-up</a></p>
                 </form>
+
+                <p class="d-block text-center pt-2 pb-0 mb-0" style="font-size:12px; font-weight:400;">
+                    Don't have an account | <a href="{% url 'sign_up'%}">sign-up</a> <br />
+                    Forgot your password |  <a href="{% url 'password_reset'%}">Reset Here</a>
+                </p>
 
             </div>
         </div>
+
+
 
     </div>
 </div>

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from .views import UserViewset
-from .views import UserLoginView, DashboardView
+from .views import UserLoginView, DashboardView, CustomPasswordResetView
 from rest_framework.routers import DefaultRouter
 from .import views
 from django.contrib.auth import views as auth_views
@@ -22,5 +22,6 @@ urlpatterns =  [
     path('accounts/dashboard/', DashboardView.as_view(), name='dashboard'),
     path('logout/', custom_logout, name='logout'),
     path('accounts/sign-up/', views.sign_up, name='sign_up'),
+    path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset')
 
 ]
