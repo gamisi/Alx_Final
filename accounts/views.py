@@ -12,13 +12,16 @@ from django.urls import reverse
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from .forms import RegistrationForm, CustomSetPasswordForm
 from django.contrib.auth import login, logout , authenticate
-from django.contrib.auth.mixins import AccessMixin
-from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
+from django.contrib.auth.views import PasswordResetConfirmView
 from django.contrib.auth.forms import PasswordResetForm
+from django.db.models import F,CharField, Value
+from django.db.models.functions import Concat
+from django.utils.html import format_html
 import os
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
@@ -93,11 +96,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/dashboard.html'
     login_url =  '/login/'
 
-    # Pass the logged-in user to the template
-    """def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user  
-        return context"""
 
 """def password_reset(request):
     if request.method == 'POST':
@@ -157,5 +155,53 @@ class SetCustomPasswordView(PasswordResetConfirmView):
     template_name='registration/password_confirm.html' 
     form_class=CustomSetPasswordForm
 
+class UserListView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounts/users-list.html'
+    login_url = '/login/'
 
+@api_view(['GET'])
+def get_users(request):
+    users = CustomUser.objects.annotate(
 
+        full_name=Concat(
+            F('first_name'), Value(' '), F('last_name'),
+            output_field=CharField()
+        )
+
+    ).values(
+        
+        'id', 'username', 'email', 'full_name', 'role'
+    )
+    data = []
+    for index, user in enumerate(users):
+        data.append({
+            
+            'rowIndex': index + 1,
+            'id': user['id'],
+            'username': user['username'],
+            'email': user['email'],
+            'full_name': user['full_name'],
+            'role_name': user['role'],
+            'actions': format_html(
+                '<div class="btn-group">'
+                '   <button class="btn btn-sm btn-info ml-1" title="view user info" data-id="{}" id="editUserBtn" data-toggle="modal" data-target="#updateUserModal">'
+                '       <i class="fa fa-eye" aria-hidden="true"></i>'
+                '   </button>'
+                '   <button class="btn btn-sm btn-primary ml-1" title="change password" data-id="{}" id="viewUserBtn" data-toggle="modal" data-target="#viewUserModal">'
+                '       <i class="fa fa-lock" aria-hidden="true"></i>'
+                '   </button>'
+                '   <button class="btn btn-sm btn-danger ml-1" title="delete user" data-id="{}" id="deleteUserBtn">'
+                '       <i class="fa fa-trash" aria-hidden="true"></i>'
+                '   </button>'
+                '</div>',
+                user['id'], user['id'], user['id']
+            ),
+            'checkbox': format_html(
+
+                '<input type="checkbox" name="role_checkbox" data-id="{}"><label></label>',
+                user['id']
+
+            ),
+        })
+
+    return Response(data)

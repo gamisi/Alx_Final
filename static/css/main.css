@@ -1,0 +1,9 @@
+.dt-info, 
+.dt-paging, 
+.dt-length, 
+.dt-search,
+.dataTables_filter {
+
+    font-size: 10px !important;
+    
+}
