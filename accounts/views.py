@@ -107,12 +107,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     return render (request, 'registration/password_reset_form.html', {"form": form})"""
 
-class CustomPasswordResetView(PasswordResetView):
+"""class CustomPasswordResetView(PasswordResetView):
     form_class = PasswordResetForm
-    template_name = 'registration/password_reset.html'
+    template_name = 'registration/password_reset.html'"""
 
 
-"""def custom_password_reset(request):
+def custom_password_reset(request):
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
         if form.is_valid():
@@ -123,24 +123,35 @@ class CustomPasswordResetView(PasswordResetView):
                 
                 # generate reset token and send email
                 token = default_token_generator.make_token(user)
-                uid = urlsafe_base64_encode(str(user.pk).encode())
-                reset_url = f"{get_current_site(request).domain}/reset/{uid}/{token}/"
-                print(reset_url)
+                uidb64 = urlsafe_base64_encode(str(user.pk).encode())
+                
+                # debugging
+                """print(f"Generated uidb64: {uidb64}")  
+                print(f"Generated token: {token}")"""    
 
+                reset_url = f"http://{get_current_site(request).domain}/reset/{uidb64}/{token}/"
+
+                                
                 email_subject = "Password Reset Request"
-                email_body = render_to_string('registration/password_reset_email.html', {
+                email_body = render_to_string('registration/password_email.html', {
                     
                     'reset_url': reset_url,
                     'user': user,
                 })
-
-                send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [email])
+        
+                send_mail(
+                    
+                    email_subject, 
+                    email_body, 
+                    settings.DEFAULT_FROM_EMAIL, [email],
+                    html_message=email_body,
+                )
                 
             return redirect('password_reset_done')
     else:
         form = PasswordResetForm()
 
-    return render(request, 'registration/password_reset.html', {'form': form})"""
+    return render(request, 'registration/password_reset.html', {'form': form})
 
 
 
