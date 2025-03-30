@@ -1,11 +1,11 @@
 from django.urls import path, include
 from .views import UserViewset
-from .views import UserLoginView, DashboardView
+from .views import UserLoginView, DashboardView, SetCustomPasswordView
 from rest_framework.routers import DefaultRouter
 from .import views
 from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect
-from .views import custom_logout
+from .forms import CustomSetPasswordForm
 
 #Create router here and register the viewsets
 router = DefaultRouter()
@@ -20,10 +20,12 @@ urlpatterns =  [
     path('api/login', UserLoginView.as_view(), name='login'),
     # path('register/', views.register, name='register'),
     path('accounts/dashboard/', DashboardView.as_view(), name='dashboard'),
-    path('logout/', custom_logout, name='logout'),
+    path('logout/', views.custom_logout, name='logout'),
     path('accounts/sign-up/', views.sign_up, name='sign_up'),
     #path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),
     path('password_reset/', views.custom_password_reset, name='password_reset'),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    
+    path('reset/<uidb64>/<token>/', SetCustomPasswordView.as_view(), name='password_reset_confirm'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='accounts/password_reset_done.html'), name='password_reset_done'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='accounts/reset_complete.html'), name="password_reset_complete")
+
 ]

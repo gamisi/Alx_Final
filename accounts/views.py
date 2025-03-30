@@ -14,10 +14,10 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from .forms import RegistrationForm
+from .forms import RegistrationForm, CustomSetPasswordForm
 from django.contrib.auth import login, logout , authenticate
 from django.contrib.auth.mixins import AccessMixin
-from django.contrib.auth.views import LoginView, PasswordResetView
+from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
 from django.contrib.auth.forms import PasswordResetForm
 import os
 from django.conf import settings
@@ -153,7 +153,9 @@ def custom_password_reset(request):
 
     return render(request, 'registration/password_reset.html', {'form': form})
 
-
+class SetCustomPasswordView(PasswordResetConfirmView):
+    template_name='registration/password_confirm.html' 
+    form_class=CustomSetPasswordForm
 
 
 

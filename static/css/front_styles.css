@@ -51,7 +51,9 @@ button {
 #div_id_first_name, 
 #div_id_last_name, 
 #div_id_email,
-#div_id_password2 {
+#div_id_password2,
+#div_id_new_password1,
+#div_id_new_password2 {
 
     margin-bottom: 5px !important;
 }
