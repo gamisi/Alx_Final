@@ -20,7 +20,12 @@ from django.contrib.auth.mixins import AccessMixin
 from django.contrib.auth.views import LoginView, PasswordResetView
 from django.contrib.auth.forms import PasswordResetForm
 import os
-
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 
 # Create your views here.
 class UserViewset(viewsets.ModelViewSet):
@@ -106,9 +111,37 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = PasswordResetForm
     template_name = 'registration/password_reset.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        print(self.form_class) #add this print statement.
-        return super().dispatch(request, *args, **kwargs)
+
+"""def custom_password_reset(request):
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            # Send password reset email
+            email = form.cleaned_data['email']
+            users = CustomUser.objects.filter(email=email)
+            for user in users:
+                
+                # generate reset token and send email
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(str(user.pk).encode())
+                reset_url = f"{get_current_site(request).domain}/reset/{uid}/{token}/"
+                print(reset_url)
+
+                email_subject = "Password Reset Request"
+                email_body = render_to_string('registration/password_reset_email.html', {
+                    
+                    'reset_url': reset_url,
+                    'user': user,
+                })
+
+                send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [email])
+                
+            return redirect('password_reset_done')
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'registration/password_reset.html', {'form': form})"""
+
 
 
 
