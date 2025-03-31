@@ -1,9 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
-from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm, SetPasswordForm
 from .models import CustomUser
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+# from crispy_forms.helper import FormHelper
+# from crispy_forms.layout import Submit
 
 class RegistrationForm(UserCreationForm):
 
@@ -68,4 +67,18 @@ class CustomSetPasswordForm(SetPasswordForm):
         super().__init__(*args, **kwargs)
         self.fields['new_password1'].help_text = None
         self.fields['new_password2'].help_text = None
+
+class UserEditForm(forms.ModelForm):
+    # role = forms.Field()
+    class Meta:
+        model = CustomUser
+        fields = ('username','email', 'first_name', 'last_name', 'role', 'is_active', 'is_staff', 'is_superuser')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].help_text = None
+        self.fields['is_active'].help_text = None
+        self.fields['is_staff'].help_text = None
+        self.fields['is_superuser'].help_text = None
+
         

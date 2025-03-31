@@ -1,21 +1,19 @@
-from django.shortcuts import render
-from rest_framework import generics, viewsets
+from django.shortcuts import render, get_object_or_404, redirect
+from rest_framework import viewsets
 from .serializers import CustomUserSerializer, UserLoginSerializer
 from .models import CustomUser
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
-from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
 from django.urls import reverse
-from django.contrib.auth import logout
-from django.shortcuts import redirect
+from django.contrib.auth import logout, authenticate
 from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
-from .forms import RegistrationForm, CustomSetPasswordForm
+from django.views.generic import TemplateView, DetailView
+from .forms import RegistrationForm, CustomSetPasswordForm, UserEditForm
 from django.contrib.auth import login, logout , authenticate
 from django.contrib.auth.views import PasswordResetConfirmView
 from django.contrib.auth.forms import PasswordResetForm
@@ -160,9 +158,10 @@ class UserListView(LoginRequiredMixin, TemplateView):
     login_url = '/login/'
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_users(request):
     users = CustomUser.objects.annotate(
-
+        #concat first name and last name
         full_name=Concat(
             F('first_name'), Value(' '), F('last_name'),
             output_field=CharField()
@@ -170,12 +169,13 @@ def get_users(request):
 
     ).values(
         
+        # fields that should be selected form the users table
         'id', 'username', 'email', 'full_name', 'role'
     )
     data = []
     for index, user in enumerate(users):
         data.append({
-            
+
             'rowIndex': index + 1,
             'id': user['id'],
             'username': user['username'],
@@ -183,17 +183,19 @@ def get_users(request):
             'full_name': user['full_name'],
             'role_name': user['role'],
             'actions': format_html(
+
                 '<div class="btn-group">'
-                '   <button class="btn btn-sm btn-info ml-1" title="view user info" data-id="{}" id="editUserBtn" data-toggle="modal" data-target="#updateUserModal">'
-                '       <i class="fa fa-eye" aria-hidden="true"></i>'
-                '   </button>'
-                '   <button class="btn btn-sm btn-primary ml-1" title="change password" data-id="{}" id="viewUserBtn" data-toggle="modal" data-target="#viewUserModal">'
-                '       <i class="fa fa-lock" aria-hidden="true"></i>'
-                '   </button>'
-                '   <button class="btn btn-sm btn-danger ml-1" title="delete user" data-id="{}" id="deleteUserBtn">'
-                '       <i class="fa fa-trash" aria-hidden="true"></i>'
-                '   </button>'
+                    '<button class="btn btn-sm btn-info ml-1" title="view user info" data-id="{}" id="editUserBtn" data-toggle="modal" data-target="#updateUserModal">'
+                        '<i class="fa fa-eye" aria-hidden="true"></i>'
+                    '</button>'
+                    '<button class="btn btn-sm btn-primary ml-1" title="change password" data-id="{}" id="viewUserBtn" data-toggle="modal" data-target="#viewUserModal">'
+                        '<i class="fa fa-lock" aria-hidden="true"></i>'
+                    '</button>'
+                    '<button class="btn btn-sm btn-danger ml-1" title="delete user" data-id="{}" id="deleteUserBtn">'
+                        '<i class="fa fa-trash" aria-hidden="true"></i>'
+                    '</button>'
                 '</div>',
+
                 user['id'], user['id'], user['id']
             ),
             'checkbox': format_html(
@@ -205,3 +207,22 @@ def get_users(request):
         })
 
     return Response(data)
+
+class UserDetailView(LoginRequiredMixin, TemplateView):
+    form_class = UserEditForm
+    template_name = 'accounts/view_user.html'  
+    login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = get_object_or_404(CustomUser, pk=kwargs['pk'])
+        form = UserEditForm(instance=user)
+        context['form'] = form
+        context['user'] = user
+        return context
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user(request):
+    pass
+    
