@@ -1,6 +1,6 @@
 from django.urls import path, include
 from .views import UserViewset
-from .views import UserLoginView, DashboardView, SetCustomPasswordView, UserListView
+from .views import UserLoginView, DashboardView, SetCustomPasswordView, UserListView, GroupListView, AddGroupView
 from rest_framework.routers import DefaultRouter
 from .import views
 from django.contrib.auth import views as auth_views
@@ -31,6 +31,13 @@ urlpatterns =  [
     #user management urls
     path('accounts/user-list', UserListView.as_view(), name='users'),
     path('api/users/', views.get_users, name='get_users'),
-    path('accounts/user/<int:pk>', views.UserDetailView.as_view(), name='user_detail')
+    path('accounts/user/<int:pk>/', views.UserDetailView.as_view(), name='user_edit'),
+    path('accounts/add_user/', views.UserDetailView.as_view(), name='add_user'),
+    path('accounts/groups', GroupListView.as_view(), name='group_list'),
+    path('api/groups/', views.get_groups, name='get_groups'),
+    path('accounts/add_group', AddGroupView.as_view(), name="add_group"),
+    path('accounts/edit_group/<int:pk>/', AddGroupView.as_view(), name="edit_group"),
+    path('accounts/delete-group/<int:pk>/', views.delete_group, name='delete_group'),
+    
 
 ]

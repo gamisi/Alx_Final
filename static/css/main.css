@@ -49,3 +49,11 @@ form select {
 
     font-size:12px !important;
 }
+
+#add_group_form select {
+
+    min-height: 150px !important;
+}
+
+
+

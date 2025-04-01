@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %} 
+
+{% if form.instance.pk %}
+    Update Group
+{% else %}
+    Add New Group
+{% endif %}
+
+{% endblock %}:
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="container-fluid p-2">
+    <div class="container d-flex justify-content-center align-items-center px-5">
+
+        <div class="row mb-2 mx-0">
+
+            <div class="py-2 px-0 clear-fix">
+
+                                
+                <span class="float-right">                        
+
+                                    
+                    <a href="{% url 'group_list' %}" class="btn btn-sm btn-primary">
+                        <i class="fa fa-arrow-left"></i>&nbsp; Group list
+                    </a>
+
+                </span>
+            </div>
+
+        
+
+        <div class="card border-0 shadow-sm">
+
+            <!-- 
+            <div class="card-header bg-primary border-0">
+                <h4 class="fw-bold text-center text-white">Register</h4>
+            </div>
+            -->
+            
+            <div class="card-body">
+                
+                <form method="post" id="add_group_form">
+                    {% csrf_token %}{{form|crispy}}        
+                    <button type="submit" class="btn btn-primary mt-2 btn-sm fw-300 float-right" style="font-size: 12px;">
+                        {% if form.instance.pk %}
+                            Update Group
+                        {% else %}
+                            Add Group
+                        {% endif %}         
+                    </button>
+                </form>
+
+            </div>
+        </div>     
+        
+    </div>
+
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+
+$(document).ready(function() {
+
+    // $('.filtered-select').select2();
+
+});
+    
+</script>
+{% endblock %}

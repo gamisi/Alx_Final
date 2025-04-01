@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import viewsets
 from .serializers import CustomUserSerializer, UserLoginSerializer
-from .models import CustomUser
+from .models import CustomUser, Role
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,8 +12,9 @@ from django.contrib.auth import logout, authenticate
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView, DetailView
-from .forms import RegistrationForm, CustomSetPasswordForm, UserEditForm
+from django.views.generic import TemplateView, DetailView, DeleteView
+from django.urls import reverse_lazy
+from .forms import RegistrationForm, CustomSetPasswordForm, UserEditForm, GroupEditForm
 from django.contrib.auth import login, logout , authenticate
 from django.contrib.auth.views import PasswordResetConfirmView
 from django.contrib.auth.forms import PasswordResetForm
@@ -27,6 +28,10 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import Group
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 class UserViewset(viewsets.ModelViewSet):
@@ -47,18 +52,6 @@ class UserLoginView(APIView):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-"""
-def register(request):
-    return render(request, 'registration/register.html')
-
-def login (request):
-    page_title = os.path.splitext(os.path.basename('registration/sign_up.html'))[0].capitalize()
-    context = {
-
-        'page_title': page_title,
-    }
-    return render(request, 'registration/login.html', context)
-"""
 def custom_logout(request):
     logout(request)  # This will log the user out
     return redirect(reverse('login'))  # Redirect to the login page
@@ -82,31 +75,10 @@ def sign_up(request):
             
     return render(request,'registration/sign_up.html', {"form": form})
 
-"""
-#Function Based View
-@login_required
-def DashboardView(request):
-    return render(request, 'accounts/dashboard.html')
-"""
-
 #class based view
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/dashboard.html'
     login_url =  '/login/'
-
-
-"""def password_reset(request):
-    if request.method == 'POST':
-        form = CustomPasswordResetForm(request.POST)
-    else:
-        form = CustomPasswordResetForm()
-
-    return render (request, 'registration/password_reset_form.html', {"form": form})"""
-
-"""class CustomPasswordResetView(PasswordResetView):
-    form_class = PasswordResetForm
-    template_name = 'registration/password_reset.html'"""
-
 
 def custom_password_reset(request):
     if request.method == 'POST':
@@ -157,16 +129,68 @@ class UserListView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/users-list.html'
     login_url = '/login/'
 
+class GroupListView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounts/groups.html'
+    login_url = '/login/' 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_groups(request):
+
+    groups = Group.objects.annotate().values( "id","name")
+
+    data = []
+
+    for index , group in enumerate(groups):
+
+        edit_url = reverse('edit_group', kwargs={'pk': group['id']})
+        
+        edit_link = format_html(
+            '<a href="{}" class="btn btn-sm btn-info ml-1" title="view group info">'
+            '    <i class="fa fa-eye" aria-hidden="true"></i>'
+            '</a>',
+            edit_url
+        )
+
+        data.append({
+            
+            'rowIndex': index + 1,
+            'id': group['id'],
+            'name': group['name'],               
+            'actions': format_html(
+
+                '<div class="btn-group">'
+                    '{}'                    
+                    '<button class="btn btn-sm btn-danger ml-1" title="delete group" data-id="{}" id="deleteGroupBtn">'
+                        '<i class="fa fa-trash" aria-hidden="true"></i>'
+                    '</button>'
+                '</div>',
+
+                edit_link, group['id']
+            ),
+            'checkbox': format_html(
+
+                '<input type="checkbox" name="role_checkbox" data-id="{}"><label></label>',
+                group['id']
+
+            ),
+
+        })
+
+    return Response(data)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_users(request):
     users = CustomUser.objects.annotate(
         #concat first name and last name
         full_name=Concat(
+
             F('first_name'), Value(' '), F('last_name'),
             output_field=CharField()
         )
 
+    
     ).values(
         
         # fields that should be selected form the users table
@@ -174,6 +198,22 @@ def get_users(request):
     )
     data = []
     for index, user in enumerate(users):
+
+        edit_url = reverse('user_edit', kwargs={'pk': user['id']})
+        
+        edit_link = format_html(
+            '<a href="{}" class="btn btn-sm btn-info ml-1" title="view group info">'
+            '    <i class="fa fa-eye" aria-hidden="true"></i>'
+            '</a>',
+            edit_url
+        )
+
+        try:
+            role = Role.objects.get(id=user['role'])
+            role_name = role.role_name
+        except ObjectDoesNotExist:
+            role_name = "" 
+
         data.append({
 
             'rowIndex': index + 1,
@@ -181,22 +221,17 @@ def get_users(request):
             'username': user['username'],
             'email': user['email'],
             'full_name': user['full_name'],
-            'role_name': user['role'],
+            'role_name': role_name,
             'actions': format_html(
 
                 '<div class="btn-group">'
-                    '<button class="btn btn-sm btn-info ml-1" title="view user info" data-id="{}" id="editUserBtn" data-toggle="modal" data-target="#updateUserModal">'
-                        '<i class="fa fa-eye" aria-hidden="true"></i>'
-                    '</button>'
-                    '<button class="btn btn-sm btn-primary ml-1" title="change password" data-id="{}" id="viewUserBtn" data-toggle="modal" data-target="#viewUserModal">'
-                        '<i class="fa fa-lock" aria-hidden="true"></i>'
-                    '</button>'
+                    '{}'                    
                     '<button class="btn btn-sm btn-danger ml-1" title="delete user" data-id="{}" id="deleteUserBtn">'
                         '<i class="fa fa-trash" aria-hidden="true"></i>'
                     '</button>'
                 '</div>',
 
-                user['id'], user['id'], user['id']
+                edit_link, user['id']
             ),
             'checkbox': format_html(
 
@@ -208,6 +243,23 @@ def get_users(request):
 
     return Response(data)
 
+@api_view(['DELETE'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def delete_group(request, pk):
+
+    # Retrieve the group by pk or return 404 if not found
+    group = get_object_or_404(Group, pk=pk)
+
+    # Check if the user has the required permissions
+    if not request.user.has_perm('delete_group', group):
+        return Response({'detail': 'You do not have permission to delete this group.'}, status=403)
+    
+    # Delete the group
+    group.delete()
+    # Return a success response
+    return Response({'detail': 'Group deleted successfully.'}, status=200)
+
 class UserDetailView(LoginRequiredMixin, TemplateView):
     form_class = UserEditForm
     template_name = 'accounts/view_user.html'  
@@ -215,14 +267,61 @@ class UserDetailView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = get_object_or_404(CustomUser, pk=kwargs['pk'])
-        form = UserEditForm(instance=user)
-        context['form'] = form
-        context['user'] = user
+        pk = self.kwargs.get('pk') #get pk from url if available
+        if pk:
+            user = get_object_or_404(CustomUser, pk=pk)
+            context['form'] = self.form_class(instance=user)
+        else:
+            context['form'] = self.form_class()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        if pk:
+            user = get_object_or_404(CustomUser, pk=pk)
+            form = self.form_class(request.POST, instance=user)
+        else:
+            form = self.form_class(request.POST)
+
+        if form.is_valid():
+            form.save() 
+            if pk:       
+                return redirect('user_edit', pk=user.pk)     
+            else:
+                return redirect('users')
+        else:
+            context = self.get_context_data(pk=pk) #pass pk to context.
+            context['form'] = form
+            return self.render_to_response(context)
+
+class AddGroupView(LoginRequiredMixin, TemplateView):
+    form_class = GroupEditForm
+    template_name = 'accounts/add_group.html'
+    login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk') #get pk from url if available
+        if pk:
+            group = get_object_or_404(Group, pk=pk)
+            context['form'] = self.form_class(instance=group)
+        else:
+            context['form'] = self.form_class()
         return context
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user(request):
-    pass
-    
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        if pk:
+            group = get_object_or_404(Group, pk=pk)
+            form = self.form_class(request.POST, instance=group)
+        else:
+            form = self.form_class(request.POST)
+
+        if form.is_valid():
+            group = form.save()
+            group.permissions.set(form.cleaned_data['permissions'])
+            return redirect('group_list')
+        else:
+            context = self.get_context_data(pk=pk) #pass pk to context.
+            context['form'] = form
+            return self.render_to_response(context)
