@@ -54,15 +54,6 @@ class RegistrationForm(UserCreationForm):
 
         return user
 
-"""class CustomPasswordResetForm(PasswordResetForm):
-    
-    class Meta:
-        model = CustomUser
-        fields = ['email']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)"""
-
 class CustomSetPasswordForm(SetPasswordForm):
 
     def __init__(self, *args, **kwargs):
@@ -82,7 +73,7 @@ class UserEditForm(forms.ModelForm):
         self.fields['is_active'].help_text = None
         self.fields['is_staff'].help_text = None
         self.fields['is_superuser'].help_text = None        
-        
+         
 class GroupEditForm(forms.ModelForm):
 
     permissions = forms.ModelMultipleChoiceField(

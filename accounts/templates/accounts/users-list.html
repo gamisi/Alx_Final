@@ -48,14 +48,13 @@
 <script>
 
     $.ajaxSetup({
-
+        
         headers: {
 
-            'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
-        }
-
+                "X-CSRFToken": $('meta[name="csrf-token"]').attr("content"),
+            },
     });
-    
+
     $(function() {
 
         $('#dataTable').DataTable({
@@ -80,21 +79,43 @@
                 
             ],
     
-        }).on('draw', function(){
+        }).on('draw', function(){ });
 
 
-
-        });
-
-
-        /*
-        $(document).on('click', '#editUserBtn', function(){
+        $(document).on('click', '#deleteUserBtn', function(){
 
             var user_id = $(this).data('id');
-            alert(user_id);
+
+            if (confirm("Are you sure you want to delete this group?")) {
+                $.ajax({
+
+                    url: `/accounts/delete-user/${user_id}/`, 
+                    type: 'DELETE',
+                    success: function(response) {
+                        
+                        alert(response.detail);                      
+                        $('#dataTable').DataTable().ajax.reload(null, false);
+
+                    },
+                    error: function(error) {
+                        
+                        if (error.status === 403 && error.responseJSON && error.responseJSON.detail) {
+
+                            alert(error.responseJSON.detail); 
+                            
+                        } else if (error.responseJSON && error.responseJSON.detail) {
+
+                            alert("Error deleting user: " + error.responseJSON.detail);
+
+                        } else {
+
+                            alert("an unexpected error occurred.");
+                        }
+                    }
+                });
+            }
 
         });
-        */
 
 
 

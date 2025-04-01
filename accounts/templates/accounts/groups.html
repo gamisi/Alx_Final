@@ -46,10 +46,11 @@
 <script>
     
     $.ajaxSetup({
-    headers: {
 
-            "X-CSRFToken": $('meta[name="csrf-token"]').attr("content"),
-        },
+        headers: {
+
+                "X-CSRFToken": $('meta[name="csrf-token"]').attr("content"),
+            },
     });
 
     $(function() {
@@ -74,8 +75,6 @@
             ],
     
         }).on('draw', function(){
-
-
 
         });
 
@@ -111,8 +110,8 @@
                 });
             }
 
-        });      
-        
+        });
+                
         
     });
 

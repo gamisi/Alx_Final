@@ -244,21 +244,28 @@ def get_users(request):
     return Response(data)
 
 @api_view(['DELETE'])
-@csrf_exempt
 @permission_classes([IsAuthenticated])
 def delete_group(request, pk):
 
-    # Retrieve the group by pk or return 404 if not found
     group = get_object_or_404(Group, pk=pk)
 
-    # Check if the user has the required permissions
     if not request.user.has_perm('delete_group', group):
         return Response({'detail': 'You do not have permission to delete this group.'}, status=403)
     
-    # Delete the group
     group.delete()
-    # Return a success response
     return Response({'detail': 'Group deleted successfully.'}, status=200)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user(request, pk):
+
+    user = get_object_or_404(CustomUser, pk=pk)
+
+    if not request.user.has_perm('delete_user', user):
+        return Response({'detail': 'You do not have permissions to delete a user'}, status=403)
+    
+    user.delete()
+    return Response({'detail': 'user has been deleted successfully'}, status=200)
 
 class UserDetailView(LoginRequiredMixin, TemplateView):
     form_class = UserEditForm
