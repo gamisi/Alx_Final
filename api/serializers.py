@@ -97,9 +97,16 @@ class TokenSerializer(serializers.ModelSerializer):
 
 class VehicleSerializer(serializers.ModelSerializer):
 
+    owner_name = serializers.SerializerMethodField()
+
+    def get_owner_name(self, obj):
+        if obj.owner:
+            return f"{obj.owner.first_name} {obj.owner.last_name}"
+        return None
+    
     class Meta:
         model = Vehicle
-        fields = ['id', 'reg_no', 'owner', 'model', 'make', 'year']
+        fields = '__all__'
 
 class MakeSerializer(serializers.ModelSerializer):
 
