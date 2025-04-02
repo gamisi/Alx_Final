@@ -29,7 +29,7 @@ class Vehicle(models.Model):
 
 class Technician(models.Model):
     name = models.CharField(max_length=100)
-    phone_no = models.CharField(max_length=100)
+    phone_no = models.CharField(max_length=100, null=True)
     specialty = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
@@ -37,7 +37,7 @@ class Technician(models.Model):
 
 class MaintenanceType(models.Model):
     maintenance_type_name = models.CharField(max_length=100)
-    maintenance_type_cost = models.DecimalField( max_digits=10, decimal_places=2 )
+    maintenance_type_cost = models.DecimalField( max_digits=10, decimal_places=2, null=True, default=0 )
 
     def __str__(self):
         return self.maintenance_type_name

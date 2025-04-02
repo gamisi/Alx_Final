@@ -32,6 +32,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
 from django.http import JsonResponse
 from .mixins import RoleRequiredMixin
+from accounts.decorators import unauthenticated_user
 
 """# Create your views here.
 class UserViewset(viewsets.ModelViewSet):
@@ -52,10 +53,15 @@ class UserLoginView(APIView):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)"""
 
+@unauthenticated_user
+def redirect_to_login(request):
+    return redirect('login')
+
 def custom_logout(request):
     logout(request)  # This will log the user out
     return redirect(reverse('login'))  # Redirect to the login page
 
+@unauthenticated_user
 def sign_up(request):
 
     """page_title = os.path.splitext(os.path.basename('registration/sign_up.html'))[0].capitalize()

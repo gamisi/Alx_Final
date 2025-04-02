@@ -97,14 +97,19 @@
                 <div class="bg-white py-2 collapse-inner rounded">
                     <!-- <h6 class="collapse-header">Role & Permissions</h6> -->
                     
-                    <a class="collapse-item text-xs" href="">
+                    <a class="collapse-item text-xs" href="{% url 'all_models' %}">
                         <i class="fa fa-building"></i>
                         <span>models</span>
                     </a>
 
-                    <a class="collapse-item text-xs" href="">
+                    <a class="collapse-item text-xs" href="{% url 'all_makes' %}">
                         <i class="fa fa-building"></i>
                         <span>Make</span>
+                    </a>
+
+                    <a class="collapse-item text-xs" href="{% url 'all_mechanics' %}">
+                        <i class="fa fa-building"></i>
+                        <span>Technicians</span>
                     </a>
 
                 </div>

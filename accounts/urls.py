@@ -10,12 +10,10 @@ from .forms import CustomSetPasswordForm
 # router = DefaultRouter()
 # router.register(r'users', UserViewset, basename='users')
 
-def redirect_to_login(request):
-    return redirect('login')
 
 urlpatterns =  [
 
-    path('', redirect_to_login, name='/login'),
+    path('', views.redirect_to_login, name='login'),
     # path('api/login', UserLoginView.as_view(), name='login'),
     # path('register/', views.register, name='register'),
     path('accounts/dashboard/', AdminDashboardView.as_view(), name='dashboard'),
