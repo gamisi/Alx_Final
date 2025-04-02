@@ -1,6 +1,5 @@
 from django.urls import path, include
-from .views import UserViewset
-from .views import UserLoginView, DashboardView, SetCustomPasswordView, UserListView, GroupListView, AddGroupView
+from .views import AdminDashboardView, SetCustomPasswordView, UserListView, GroupListView, AddGroupView, CustomerDashboardView
 from rest_framework.routers import DefaultRouter
 from .import views
 from django.contrib.auth import views as auth_views
@@ -8,8 +7,8 @@ from django.shortcuts import redirect
 from .forms import CustomSetPasswordForm
 
 #Create router here and register the viewsets
-router = DefaultRouter()
-router.register(r'users', UserViewset, basename='users')
+# router = DefaultRouter()
+# router.register(r'users', UserViewset, basename='users')
 
 def redirect_to_login(request):
     return redirect('login')
@@ -17,9 +16,10 @@ def redirect_to_login(request):
 urlpatterns =  [
 
     path('', redirect_to_login, name='/login'),
-    path('api/login', UserLoginView.as_view(), name='login'),
+    # path('api/login', UserLoginView.as_view(), name='login'),
     # path('register/', views.register, name='register'),
-    path('accounts/dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('accounts/dashboard/', AdminDashboardView.as_view(), name='dashboard'),
+    path('accounts/customer_dashboard/', CustomerDashboardView.as_view(), name='customer_dashboard'),
     path('logout/', views.custom_logout, name='logout'),
     path('accounts/sign-up/', views.sign_up, name='sign_up'),
     #path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),

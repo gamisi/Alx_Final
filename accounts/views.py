@@ -31,9 +31,9 @@ from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from .mixins import RoleRequiredMixin
 
-# Create your views here.
+"""# Create your views here.
 class UserViewset(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
@@ -50,7 +50,7 @@ class UserLoginView(APIView):
                 token, created = Token.objects.get_or_create(user=user)
                 return Response({'here is your token': {token.key}}, status=status.HTTP_200_OK)
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)"""
 
 def custom_logout(request):
     logout(request)  # This will log the user out
@@ -76,9 +76,25 @@ def sign_up(request):
     return render(request,'registration/sign_up.html', {"form": form})
 
 #class based view
-class DashboardView(LoginRequiredMixin, TemplateView):
+class AdminDashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/dashboard.html'
     login_url =  '/login/'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            if request.user.role.role_name == 'customer':
+                # Redirect to customer dashboard
+                return redirect(reverse('customer_dashboard'))
+            else:
+                # Render default admin dashboard
+                return super().dispatch(request, *args, **kwargs)
+        else:
+            return self.handle_no_permission(request)
+
+class CustomerDashboardView(LoginRequiredMixin, RoleRequiredMixin, TemplateView):
+    template_name = 'accounts/customer_dashboard.html'
+    role_required = 'customer'
+    login_url = '/login/'
 
 def custom_password_reset(request):
     if request.method == 'POST':
