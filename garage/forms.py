@@ -68,8 +68,8 @@ class MaintenanceForm(forms.ModelForm):
 class MaintenanceTypeForm(forms.ModelForm):
 
     class Meta:
-        form = MaintenanceType
-        fields = ('maintenance_type_name', 'maintenance_type_cost')
+        model = MaintenanceType
+        fields = ('maintenance_type_name', 'maintenance_type_cost', 'maintenance_type_desc')
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

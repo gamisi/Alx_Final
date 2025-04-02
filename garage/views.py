@@ -7,7 +7,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, DetailView, DeleteView
-from .forms import AddVehicleForm, MakeForm, ModelForm, TechnicianForm, RepairForm, MaintenanceForm, NotificationForm, AppointmentForm
+from .forms import AddVehicleForm, MakeForm, ModelForm, TechnicianForm, RepairForm, MaintenanceForm, NotificationForm, AppointmentForm, MaintenanceTypeForm
 from django.shortcuts import render, get_object_or_404, redirect
 
 # Create your views here.
@@ -402,3 +402,87 @@ def delete_mechanic(request, pk):
 
     except Exception as e:
         return Response({'error': str(e)}, status=403)
+
+class MaintenanceTypeView(LoginRequiredMixin, TemplateView):
+    template_name = 'garage/maintenancetype.html'
+    login_url = '/login/'
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_maintenance_types(request):
+
+    try:
+
+        maintenancetypes = MaintenanceType.objects.all()
+        data = []
+
+        for index, maintenancetype in enumerate(maintenancetypes):
+            
+                
+                edit_url = reverse('edit_maintenance_type', kwargs={'pk': maintenancetype.id})
+                edit_link = format_html(
+                    '<a href="{}" class="btn btn-sm btn-info ml-1" title="view maintenance type">'
+                    '    <i class="fa fa-eye" aria-hidden="true"></i>'
+                    '</a>',
+                    edit_url
+                )
+
+                data.append({
+                    'rowIndex': index + 1,
+                    'id': maintenancetype.id,
+                    'maintenance_type_name': maintenancetype.maintenance_type_name, 
+                    'maintenance_type_cost': maintenancetype.maintenance_type_cost,
+                    'maintenance_type_desc': maintenancetype.maintenance_type_desc,
+                    'actions': format_html(
+                        '<div class="btn-group">'
+                        '    {}'
+                        '    <button class="btn btn-sm btn-danger ml-1" title="delete vehicle" data-id="{}" id="deleteBtn">'
+                        '        <i class="fa fa-trash" aria-hidden="true"></i>'
+                        '    </button>'
+                        '</div>',
+                        edit_link, maintenancetype.id
+                    ),
+                    'checkbox': format_html(
+                        '<input type="checkbox" name="role_checkbox" data-id="{}"><label></label>',
+                        maintenancetype.id
+                    ),
+                })
+
+        return Response(data)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+class AddMaintenancetypeView(LoginRequiredMixin, TemplateView):
+    form_class = MaintenanceTypeForm
+    template_name = 'garage/view_maintenancetype.html'
+    login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk') 
+        if pk:
+            maintenancetype = get_object_or_404(MaintenanceType, pk=pk)
+            context['form'] = self.form_class(instance=maintenancetype)
+        else:
+            context['form'] = self.form_class()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        if pk:
+            maintenancetype = get_object_or_404(MaintenanceType, pk=pk)
+            form = self.form_class(request.POST, instance=maintenancetype)
+        else:
+            form = self.form_class(request.POST)
+
+        if form.is_valid():
+            maintenancetype = form.save()
+            if pk:       
+                return redirect('edit_maintenance_type', pk=maintenancetype.pk)     
+            else:
+                return redirect('maintenance_types')
+        else:
+            context = self.get_context_data(pk=pk) 
+            context['form'] = form
+            return self.render_to_response(context)

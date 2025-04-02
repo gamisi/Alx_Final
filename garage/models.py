@@ -20,8 +20,8 @@ class Make(models.Model):
 class Vehicle(models.Model):
     reg_no = models.CharField(max_length=100, unique=True)
     owner = models.ForeignKey(CustomUser, null=True, on_delete=models.RESTRICT, related_name='vehicles')
-    model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL, related_name='vehicles')
-    make = models.ForeignKey(Make, null=True, on_delete=models.SET_NULL, related_name='vehicles')
+    model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL, blank=True, related_name='vehicles')
+    make = models.ForeignKey(Make, null=True, on_delete=models.SET_NULL, blank=True, related_name='vehicles')
     year = models.IntegerField(null=True)
     
     def __str__(self):
@@ -38,6 +38,7 @@ class Technician(models.Model):
 class MaintenanceType(models.Model):
     maintenance_type_name = models.CharField(max_length=100)
     maintenance_type_cost = models.DecimalField( max_digits=10, decimal_places=2, null=True, default=0 )
+    maintenance_type_desc = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.maintenance_type_name
