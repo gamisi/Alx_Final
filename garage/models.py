@@ -71,7 +71,7 @@ class Maintenance(models.Model):
 class Repair(models.Model):
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.RESTRICT, related_name='repairs')
     mechanic = models.ForeignKey(Technician, on_delete=models.RESTRICT, related_name='repairs')    
-    repair_date = models.DateField(blank=True)
+    repair_date = models.DateField(null=True)
     repair_cost = models.DecimalField( max_digits=10, decimal_places=2, blank=True )
     description = models.TextField(blank=True)
 

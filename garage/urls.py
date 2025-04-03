@@ -49,5 +49,5 @@ urlpatterns = [
         path('repairs/', RepairsView.as_view(), name='all_repairs'),
         path('add_repair/', AddRepairsView.as_view(), name='add_repair'),
         path('api/all_repairs/', views.get_repairs, name='get_repairs'),
-        path('edit_repair/<int:pk>', AddRepairsView.as_view(), name='add_repair'),
+        path('edit_repair/<int:pk>', AddRepairsView.as_view(), name='edit_repair'),
 ]

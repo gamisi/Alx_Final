@@ -631,6 +631,28 @@ class AddRepairsView(LoginRequiredMixin, TemplateView):
             context['form'] = self.form_class()
         return context
 
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        if pk:
+            repair = get_object_or_404(Repair, pk=pk)
+            form = self.form_class(request.POST, instance=repair)
+        else:
+            form = self.form_class(request.POST)
+
+        if form.is_valid():
+            
+            repair = form.save()
+            if pk:       
+                return redirect('edit_repair', pk=repair.pk)     
+            else:
+                return redirect('all_repairs')
+                    
+        else:
+            context = self.get_context_data(pk=pk) 
+            context['form'] = form
+            return self.render_to_response(context)    
+        
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_repairs(request):

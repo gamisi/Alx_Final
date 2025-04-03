@@ -58,5 +58,6 @@ form select {
 
 #id_maintenance_type_desc, #id_description {
 
-    height: 150px !important;
+    height: 100px !important;
+    font-size:12px !important;
 }
