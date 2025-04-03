@@ -1,6 +1,6 @@
 from .import views
 from django.urls import path
-from .views import VehicleListView, AddVehicleView, MakeView, ModelView, AddMakeView, AddModelView, TechnicianView, AddMechanicView, MaintenanceTypeView, AddMaintenancetypeView, MaintenanceView, AddMaintenanceView, RepairsView, AddRepairsView
+from .views import VehicleListView, AddVehicleView, MakeView, ModelView, AddMakeView, AddModelView, TechnicianView, AddMechanicView, MaintenanceTypeView, AddMaintenancetypeView, MaintenanceView, AddMaintenanceView, RepairsView, AddRepairsView, AppointmentView, AddAppoitnmentView
 
 urlpatterns = [
         
@@ -43,11 +43,19 @@ urlpatterns = [
         path('api/maintenances/', views.get_maintenances, name='maintenances'),
         path('add_maintenance/', AddMaintenanceView.as_view(), name='add_maintenance'),
         path('edit_maintenance/<int:pk>/', AddMaintenanceView.as_view(), name='edit_maintenance'),
-        # delete url missing here (reminder)
+        path('delete-maintenance/<int:pk>/', views.delete_maintenance, name='delete_maintenance'),
 
         #repairs
         path('repairs/', RepairsView.as_view(), name='all_repairs'),
         path('add_repair/', AddRepairsView.as_view(), name='add_repair'),
         path('api/all_repairs/', views.get_repairs, name='get_repairs'),
-        path('edit_repair/<int:pk>', AddRepairsView.as_view(), name='edit_repair'),
+        path('edit_repair/<int:pk>/', AddRepairsView.as_view(), name='edit_repair'),
+        path('delete-repair/<int:pk>/', views.delete_repair, name='delete_repair'),
+
+        #Appointments
+        path('appointments/', AppointmentView.as_view(), name='all_appointments' ),
+        path('api/appointments/', views.get_appointments, name="get_appointments"),
+        path('add_appointment/', AddAppoitnmentView.as_view(), name='add_appointment'),
+        path('edit_appointment/<int:pk>/', AddAppoitnmentView.as_view(), name='edit_appointment'),
+        path('delete-appointment/<int:pk>/', views.delete_appointment, name='delete_appointment'),       
 ]

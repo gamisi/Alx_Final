@@ -72,25 +72,26 @@ class Repair(models.Model):
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.RESTRICT, related_name='repairs')
     mechanic = models.ForeignKey(Technician, on_delete=models.RESTRICT, related_name='repairs')    
     repair_date = models.DateField(null=True)
-    repair_cost = models.DecimalField( max_digits=10, decimal_places=2, blank=True )
+    repair_cost = models.DecimalField( max_digits=10, decimal_places=2, blank=True, null=True )
     description = models.TextField(blank=True)
 
 class Appointment(models.Model):
-    user_id = models.ForeignKey(CustomUser, null=True, on_delete=models.RESTRICT, related_name='appointments')    
+    # user_id = models.ForeignKey(CustomUser, null=True, on_delete=models.RESTRICT, related_name='appointments')    
+    STATUS_CHOICES = (
+
+        ('open', 'Open'),
+        ('closed', 'Closed'),
+    )
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.RESTRICT, related_name='appointments')    
-    appointment_date = models.DateTimeField()
-    description = models.TextField()
+    appointment_date = models.DateTimeField(null=True)
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=100, choices=STATUS_CHOICES ,default='open')
 
 class Notification(models.Model):
     user_id = models.ForeignKey(CustomUser, null=True, on_delete=models.RESTRICT, related_name='notifications')
     message = models.CharField(max_length=100)
     notification_date = models.DateTimeField()
     notification_type = models.CharField(max_length=100)
+    Is_read = models.BooleanField(default=0)
 
 
-
-
-
-
-
-    

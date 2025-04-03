@@ -3,6 +3,9 @@ from accounts.models import CustomUser
 from .models import Vehicle, Make, Model, Technician, Repair, Maintenance, MaintenanceType, Appointment, Notification
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Row, HTML
+# from django.contrib.auth import get_user_model
+import datetime
+
 
 class AddVehicleForm(forms.ModelForm):    
     
@@ -84,12 +87,45 @@ class MaintenanceTypeForm(forms.ModelForm):
 
 class AppointmentForm(forms.ModelForm):
 
+    #appointment_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    appointment_date = forms.DateTimeField(
+
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M')
+        
+    )
+
     class Meta:
-        form = Appointment
-        fields = ()
+        model = Appointment
+        fields = ('vehicle_id', 'appointment_date', 'description')
     
-    def __init__(self, *args, **kwargs):
+    def clean(self):
+        cleaned_data = super().clean()
+        vehicle = cleaned_data.get('vehicle_id')
+        appointment_date = cleaned_data.get('appointment_date')
+        current_date = datetime.date.today()
+
+        if vehicle:
+            open_appointment = Appointment.objects.filter(vehicle_id=vehicle, status='open').exists()
+            if open_appointment:
+                raise forms.ValidationError('Vehicle already has an open appointment please contact admin to close it before opening a new appointment.')
+            
+            if appointment_date < current_date:
+                raise forms.ValidationError('Appointment date cannot be in the past.')
+
+        return cleaned_data
+    
+    def __init__(self, *args, **kwargs):        
+        user = kwargs.pop('user', None) 
         super().__init__(*args, **kwargs)
+
+        if user:
+            print(f"User Role: {user.role if hasattr(user, 'role') else None}") #print the user role
+            if hasattr(user, 'role') and user.role and user.role.role_name == 'customer':
+                self.fields['vehicle_id'].queryset = Vehicle.objects.filter(owner=user)
+            else:
+                self.fields['vehicle_id'].queryset = Vehicle.objects.all()
+        else:
+            print("User is None") #print if user is none.
 
 class NotificationForm(forms.ModelForm):
 

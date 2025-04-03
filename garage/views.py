@@ -22,7 +22,13 @@ class VehicleListView(LoginRequiredMixin, TemplateView):
 @permission_classes([IsAuthenticated])
 def get_vehicles(request):
     try:
-        vehicles = Vehicle.objects.all()
+
+        id = request.user.id
+        if request.user.role.role_name == 'customer':
+            vehicles = Vehicle.objects.filter(owner_id=id) 
+        else:
+            vehicles = Vehicle.objects.all()
+
         data = []
 
         for index, vehicle in enumerate(vehicles):
@@ -513,7 +519,16 @@ def get_maintenances(request):
 
     try:
 
-        maintenances = Maintenance.objects.all()
+        user = request.user
+
+        if user.role.role_name == 'customer':
+            # Get the user's vehicles.
+            vehicles = Vehicle.objects.filter(owner=user)  
+            #filter maintenances
+            maintenances = Maintenance.objects.filter(vehicle_id__in=vehicles) 
+        else:
+            maintenances = Maintenance.objects.all()
+
         data = []
 
         for index, maintenance in enumerate(maintenances):
@@ -652,12 +667,18 @@ class AddRepairsView(LoginRequiredMixin, TemplateView):
             context['form'] = form
             return self.render_to_response(context)    
         
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_repairs(request):
 
-    repairs = Repair.objects.all()
+    user = request.user
+
+    if user.role.role_name == 'customer':
+        vehicles = Vehicle.objects.filter(owner=user)  # Get the user's vehicles.
+        repairs = Repair.objects.filter(vehicle_id__in=vehicles) #filter repairs
+    else:
+        repairs = Repair.objects.all()
+    
     data = []
 
     try:
@@ -700,3 +721,148 @@ def get_repairs(request):
     
     except Exception as e:
         return Response({'error': str(e)}, status=500)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_repair(request, pk):
+    try:
+        repair = get_object_or_404(Repair, pk=pk)
+        if not request.user.has_perm('delete_repair', repair):
+            return Response({'detail': 'You do not have permissions to this repair'}, status=403)
+        
+        repair.delete()
+
+        return Response({'detail': 'repair record has been deleted successfully'}, status=200)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=403)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_maintenance(request, pk):
+    try:
+        maintenance = get_object_or_404(Maintenance, pk=pk)
+        if not request.user.has_perm('delete_maintenance', maintenance):
+            return Response({'detail': 'You do not have permissions to delete a maintenance'}, status=403)
+        
+        maintenance.delete()
+
+        return Response({'detail': 'maintenance has been deleted successfully'}, status=200)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=403)
+
+
+class AppointmentView(LoginRequiredMixin, TemplateView):
+    template_name = 'garage/appointments.html'
+    login_url = '/login/'
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_appointments(request):
+    
+    try:
+
+        user = request.user
+
+        if user.role.role_name == 'customer':
+
+            vehicles = Vehicle.objects.filter(owner=user)
+            appointments= Appointment.objects.filter(vehicle_id__in=vehicles) 
+
+        else:
+            appointments = Appointment.objects.all()    
+
+        data = []
+
+        for index, appointment in enumerate(appointments):
+
+                edit_url = reverse('edit_appointment', kwargs={'pk': appointment.id})
+                edit_link = format_html(
+                    '<a href="{}" class="btn btn-sm btn-info ml-1" title="view maintenance type">'
+                    '    <i class="fa fa-eye" aria-hidden="true"></i>'
+                    '</a>',
+                    edit_url
+                )
+
+                data.append({
+
+                        'rowIndex': index + 1,
+                        'id': appointment.id,  
+                        'vehicle': appointment.vehicle_id.reg_no,     
+                        'owner': appointment.vehicle_id.owner.username if appointment.vehicle_id.owner else None,
+                        'appointment_date': appointment.appointment_date,
+                        'description': appointment.description, 
+                        'status': appointment.status,            
+                        'actions': format_html(
+                            '<div class="btn-group">'
+                            '    {}'
+                            '    <button class="btn btn-sm btn-danger ml-1" title="delete vehicle" data-id="{}" id="deleteBtn">'
+                            '        <i class="fa fa-trash" aria-hidden="true"></i>'
+                            '    </button>'
+                            '</div>',
+                            edit_link, appointment.id
+                        ),
+                        'checkbox': format_html(
+                            '<input type="checkbox" name="role_checkbox" data-id="{}"><label></label>',
+                            appointment.id
+                        ),
+
+                })
+
+        return Response(data)
+    
+    except Exception as e:
+        return Response({"Error": str(e)}, status=500 )
+    
+
+class AddAppoitnmentView(LoginRequiredMixin, TemplateView):
+    form_class = AppointmentForm
+    template_name = 'garage/view_appointment.html'
+    login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        context =  super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk')
+        if pk:
+            appointment = get_object_or_404(Appointment, pk=pk)
+            context['form'] = self.form_class(instance=appointment, user=self.request.user)
+        else:
+            context['form'] = self.form_class(user=self.request.user)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        if pk:
+            appointment = get_object_or_404(Appointment, pk=pk)
+            form = self.form_class(request.POST, instance=appointment, user=request.user)
+        else:
+            form = self.form_class(request.POST, user=request.user)
+
+        if form.is_valid():
+            
+            appointment = form.save()
+            if pk:       
+                return redirect('edit_appointment', pk=appointment.pk)     
+            else:
+                return redirect('all_appointments')
+                    
+        else:
+            context = self.get_context_data(pk=pk) 
+            context['form'] = form
+            return self.render_to_response(context)    
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_appointment(request, pk):
+    try:
+        appointment = get_object_or_404(Appointment, pk=pk)
+        if not request.user.has_perm('delete_appointment', appointment):
+            return Response({'detail': 'You do not have permissions to delete an appointment'}, status=403)
+        
+        appointment.delete()
+
+        return Response({'detail': 'appointment has been deleted successfully'}, status=200)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=403)
