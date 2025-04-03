@@ -56,7 +56,7 @@ form select {
 }
 
 
-#id_maintenance_type_desc {
+#id_maintenance_type_desc, #id_description {
 
     height: 150px !important;
 }

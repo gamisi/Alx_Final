@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, DetailView, DeleteView
 from .forms import AddVehicleForm, MakeForm, ModelForm, TechnicianForm, RepairForm, MaintenanceForm, NotificationForm, AppointmentForm, MaintenanceTypeForm
 from django.shortcuts import render, get_object_or_404, redirect
+from decimal import Decimal
 
 # Create your views here.
 
@@ -486,3 +487,194 @@ class AddMaintenancetypeView(LoginRequiredMixin, TemplateView):
             context = self.get_context_data(pk=pk) 
             context['form'] = form
             return self.render_to_response(context)
+
+@api_view(['DELETE']) 
+@permission_classes([IsAuthenticated])  
+def delete_maintenance_type(request, pk):
+
+    try:
+        maintenance_type = get_object_or_404(MaintenanceType, pk=pk)
+        if not request.user.has_perm('delete_maintenance_type', maintenance_type):
+            return Response({'detail': 'You do not have permissions to delete a mechanic'}, status=403)
+        
+        maintenance_type.delete()
+        return Response({'detail': 'maintenance_type has been deleted successfully'}, status=200)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=403)
+
+class MaintenanceView(LoginRequiredMixin, TemplateView):
+    template_name = 'garage/maintenance.html'
+    login_url = '/login/'
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_maintenances(request):
+
+    try:
+
+        maintenances = Maintenance.objects.all()
+        data = []
+
+        for index, maintenance in enumerate(maintenances):
+            
+                maintenance_types_data = []
+                for mt in maintenance.maintenance_types.all():
+                    maintenance_types_data.append({
+                        'id': mt.id,
+                        'maintenance_types': mt.maintenance_type_name  + ' - ' + str(mt.maintenance_type_cost),
+                        # 'maintenance_type_cost': str(mt.maintenance_type_cost), 
+                        # 'maintenance_type_desc': mt.maintenance_type_desc,
+                    })
+                
+                edit_url = reverse('edit_maintenance', kwargs={'pk': maintenance.id})
+                edit_link = format_html(
+                    '<a href="{}" class="btn btn-sm btn-info ml-1" title="view maintenance type">'
+                    '    <i class="fa fa-eye" aria-hidden="true"></i>'
+                    '</a>',
+                    edit_url
+                )
+
+                data.append({
+                    'rowIndex': index + 1,
+                    'id': maintenance.id,                    
+                    'vehicle': maintenance.vehicle_id.reg_no, 
+                    'mechanic': maintenance.mechanic.name,
+                    'maintenance_date': maintenance.maintenance_date,
+                    'maintenance_types': maintenance_types_data,
+                    'mileage': maintenance.mileage,
+                    'cost': maintenance.cost,
+                    'miscellaneous_cost': maintenance.miscellaneous_cost,
+                    'total_cost': maintenance.total_cost,
+                    'actions': format_html(
+                        '<div class="btn-group">'
+                        '    {}'
+                        '    <button class="btn btn-sm btn-danger ml-1" title="delete vehicle" data-id="{}" id="deleteBtn">'
+                        '        <i class="fa fa-trash" aria-hidden="true"></i>'
+                        '    </button>'
+                        '</div>',
+                        edit_link, maintenance.id
+                    ),
+                    'checkbox': format_html(
+                        '<input type="checkbox" name="role_checkbox" data-id="{}"><label></label>',
+                        maintenance.id
+                    ),
+                })
+
+        return Response(data)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+class AddMaintenanceView(LoginRequiredMixin, TemplateView):
+    form_class  = MaintenanceForm
+    template_name = 'garage/view_maintenance.html'
+    login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk') 
+        if pk:
+            maintenance = get_object_or_404(Maintenance, pk=pk)
+            context['form'] = self.form_class(instance=maintenance)
+        else:
+            context['form'] = self.form_class()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        if pk:
+            maintenance = get_object_or_404(Maintenance, pk=pk)
+            form = self.form_class(request.POST, instance=maintenance)
+        else:
+            form = self.form_class(request.POST)
+
+        if form.is_valid():
+            
+            maintenance = form.save()
+
+            # Set the maintenance_types relationship.
+            maintenance_types_ids = request.POST.getlist('maintenance_types') 
+            maintenance.maintenance_types.set(maintenance_types_ids) 
+
+            # Calculate cost and total_cost in the view.
+            total_maintenance_cost = sum(mt.maintenance_type_cost for mt in maintenance.maintenance_types.all())
+            maintenance.cost = total_maintenance_cost if total_maintenance_cost is not None else Decimal('0.00')
+            maintenance.total_cost = (maintenance.cost or Decimal('0.00')) + (maintenance.miscellaneous_cost or Decimal('0.00'))
+            maintenance.save() 
+
+            if pk:       
+                return redirect('edit_maintenance', pk=maintenance.pk)     
+            else:
+                return redirect('all_maintenances')
+        else:
+            context = self.get_context_data(pk=pk) 
+            context['form'] = form
+            return self.render_to_response(context)
+
+class RepairsView(LoginRequiredMixin, TemplateView):
+    template_name = 'garage/all_repairs.html'
+    login_url = '/login/' 
+
+class AddRepairsView(LoginRequiredMixin, TemplateView):
+    form_class = RepairForm
+    template_name = 'garage/view_repairs.html'
+    login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) 
+        pk = self.kwargs.get('pk')
+        if pk:
+            repair = get_object_or_404(Repair, pk=pk)
+            context['form'] = self.form_class(instance=repair)
+        else:
+            context['form'] = self.form_class()
+        return context
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_repairs(request):
+
+    repairs = Repair.objects.all()
+    data = []
+
+    try:
+        for index, repair in enumerate(repairs):
+
+            edit_url = reverse('edit_repair', kwargs={'pk': repair.id})
+            edit_link = format_html(
+                '<a href="{}" class="btn btn-sm btn-info ml-1" title="view maintenance type">'
+                '    <i class="fa fa-eye" aria-hidden="true"></i>'
+                '</a>',
+                edit_url
+            )
+
+            data.append({
+
+                'rowIndex': index + 1,
+                'id': repair.id,  
+                'vehicle': repair.vehicle_id.reg_no,     
+                'mechanic': repair.mechanic.name,
+                'repair_date': repair.repair_date,
+                'repair_cost': repair.repair_cost,
+                'description': repair.description,             
+                'actions': format_html(
+                    '<div class="btn-group">'
+                    '    {}'
+                    '    <button class="btn btn-sm btn-danger ml-1" title="delete vehicle" data-id="{}" id="deleteBtn">'
+                    '        <i class="fa fa-trash" aria-hidden="true"></i>'
+                    '    </button>'
+                    '</div>',
+                    edit_link, repair.id
+                ),
+                'checkbox': format_html(
+                    '<input type="checkbox" name="role_checkbox" data-id="{}"><label></label>',
+                    repair.id
+                ),
+            })
+        
+        return Response(data)
+        
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)

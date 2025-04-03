@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 {% block title %} 
 {% if form.instance.pk %}
-Update Maintenance
+Update Repair
 {% else %}
-Add Maintenance
+Add Repair
 {% endif %} 
 {% endblock %}
 {% block content %}
+
 <div class="container-fluid">
     <div class="container mx-0 px-0">
         
         <div class="row mb-2 mx-0">
             <div class="col-lg-12 clear-fix px-0">                                
                 <span class="float-right">                                                           
-                    <a href="{% url 'all_maintenances' %}" class="btn btn-sm btn-primary">
-                        <i class="fa fa-arrow-left"></i>&nbsp;maintenances
+                    <a href="{% url 'all_repairs' %}" class="btn btn-sm btn-primary">
+                        <i class="fa fa-arrow-left"></i>&nbsp;Repairs
                     </a>
                 </span>
             </div>
@@ -27,9 +28,9 @@ Add Maintenance
                     {% csrf_token %} {{form|crispy}}
                     <button type="submit" class="btn btn-sm btn-primary float-right mt-2">
                         {% if form.instance.pk %}
-                            Update Maintenance
+                            Update Repair
                         {% else %}
-                            Add Maintenance
+                            Add Repair
                         {% endif %}                    
                     </button>         
                 </form>

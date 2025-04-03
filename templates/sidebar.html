@@ -52,6 +52,22 @@
                         &nbsp;List Vehicles
                     </a>
 
+                    <a class="collapse-item text-xs" href="{% url 'all_maintenances' %}">
+                        <i class="fa fa-cog"></i>
+                        &nbsp;Maintenance
+                    </a>
+
+                    <a class="collapse-item text-xs" href="{% url 'all_repairs' %}">
+                        <i class="fa fa-cog"></i>
+                        &nbsp; Repairs
+                    </a>
+
+                    <a class="collapse-item text-xs" href="">
+                        <i class="fa fa-cog"></i>
+                        &nbsp;Appointments
+                    </a>
+
+
                 </div>
             </div>
         </li>
@@ -110,6 +126,11 @@
                     <a class="collapse-item text-xs" href="{% url 'all_mechanics' %}">
                         <i class="fa fa-building"></i>
                         <span>Technicians</span>
+                    </a>
+
+                    <a class="collapse-item text-xs" href="{% url 'maintenance_types' %}">
+                        <i class="fa fa-building"></i>
+                        <span>services</span>
                     </a>
 
                 </div>

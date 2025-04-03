@@ -49,21 +49,27 @@ class TechnicianForm(forms.ModelForm):
 
 class RepairForm(forms.ModelForm):
 
+    repair_date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'date'}))
+
     class Meta:
-        form = Repair
-        fields = ()
+        model = Repair
+        fields = ('vehicle_id', 'mechanic', 'repair_date', 'repair_cost', 'description')
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 class MaintenanceForm(forms.ModelForm):
+    
+    maintenance_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
     class Meta:
-        form = Maintenance
-        fields = ()
+        model = Maintenance
+        fields = ('vehicle_id', 'mechanic', 'maintenance_date', 'maintenance_types', 'mileage', 'cost', 'miscellaneous_cost', 'total_cost')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['cost'].widget.attrs['readonly'] = True
+        self.fields['total_cost'].widget.attrs['readonly'] = True
 
 class MaintenanceTypeForm(forms.ModelForm):
 

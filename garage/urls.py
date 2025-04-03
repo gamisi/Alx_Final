@@ -1,6 +1,6 @@
 from .import views
 from django.urls import path
-from .views import VehicleListView, AddVehicleView, MakeView, ModelView, AddMakeView, AddModelView, TechnicianView, AddMechanicView, MaintenanceTypeView, AddMaintenancetypeView, MaintenanceView
+from .views import VehicleListView, AddVehicleView, MakeView, ModelView, AddMakeView, AddModelView, TechnicianView, AddMechanicView, MaintenanceTypeView, AddMaintenancetypeView, MaintenanceView, AddMaintenanceView, RepairsView, AddRepairsView
 
 urlpatterns = [
         
@@ -37,7 +37,17 @@ urlpatterns = [
         path('api/maintenancetypes/', views.get_maintenance_types, name='api_maintenance_types'),
         path('add_maintenancetype/', AddMaintenancetypeView.as_view(), name='add_maintenance_type'),
         path('edit_maintenancetype/<int:pk>/', AddMaintenancetypeView.as_view(), name='edit_maintenance_type'),
+        path('delete_maintenancetype/<int:pk>/', views.delete_maintenance_type, name='delete_maintenance_type'),
 
         path('maintenances/', MaintenanceView.as_view(), name='all_maintenances'),
+        path('api/maintenances/', views.get_maintenances, name='maintenances'),
+        path('add_maintenance/', AddMaintenanceView.as_view(), name='add_maintenance'),
+        path('edit_maintenance/<int:pk>/', AddMaintenanceView.as_view(), name='edit_maintenance'),
+        # delete url missing here (reminder)
 
+        #repairs
+        path('repairs/', RepairsView.as_view(), name='all_repairs'),
+        path('add_repair/', AddRepairsView.as_view(), name='add_repair'),
+        path('api/all_repairs/', views.get_repairs, name='get_repairs'),
+        path('edit_repair/<int:pk>', AddRepairsView.as_view(), name='add_repair'),
 ]

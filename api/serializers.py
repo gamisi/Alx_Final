@@ -136,7 +136,7 @@ class MaintenanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Maintenance
-        fields = ['id', 'vehicle_id', 'mechanic', 'maintenance_date', 'maintenance_type']
+        fields = '__all__'
 
 class NotificationSerializer(serializers.ModelSerializer):
 

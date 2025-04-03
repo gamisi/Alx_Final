@@ -1,6 +1,7 @@
 from django.db import models
 # from django.contrib.auth.models import User
 from accounts.models import CustomUser
+from decimal import Decimal
 
 # Create your models here.
 class Model(models.Model):
@@ -46,19 +47,33 @@ class MaintenanceType(models.Model):
 class Maintenance(models.Model):
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.RESTRICT, related_name='maintenance')
     mechanic = models.ForeignKey(Technician, on_delete=models.RESTRICT, related_name='maintenance')
-    maintenance_date = models.DateTimeField()
-    maintenance_type = models.ForeignKey(MaintenanceType, on_delete=models.RESTRICT, related_name='maintenance')
-    mileage_type = models.IntegerField()
+    maintenance_types = models.ManyToManyField(MaintenanceType, blank=True ,related_name='maintenances')  # ManyToManyField for multiple types
+    mileage = models.IntegerField()
+    maintenance_date = models.DateField(null=True ,blank=True)
+    miscellaneous_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
+    total_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
+
+    #moved method to the view
+    """def save(self, *args, **kwargs):
+        # Calculate cost based on selected maintenance types
+        total_maintenance_cost = sum(mt.maintenance_type_cost for mt in self.maintenance_types.all())
+        self.cost = total_maintenance_cost if total_maintenance_cost is not None else Decimal('0.00')
+
+        # Calculate total cost
+        self.total_cost = (self.cost or Decimal('0.00')) + (self.miscellaneous_cost or Decimal('0.00'))
+
+        super().save(*args, **kwargs)"""
 
     def __str__(self):
-        return self.maintenance_type.maintenance_type_name
+        return f"Maintenance for {self.vehicle_id} on {self.maintenance_date}"
 
 class Repair(models.Model):
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.RESTRICT, related_name='repairs')
     mechanic = models.ForeignKey(Technician, on_delete=models.RESTRICT, related_name='repairs')    
-    repair_date = models.DateTimeField()
-    repair_cost = models.DecimalField( max_digits=10, decimal_places=2 )
-    description = models.TextField()
+    repair_date = models.DatesField(blank=True)
+    repair_cost = models.DecimalField( max_digits=10, decimal_places=2, blank=True )
+    description = models.TextField(blank=True)
 
 class Appointment(models.Model):
     user_id = models.ForeignKey(CustomUser, null=True, on_delete=models.RESTRICT, related_name='appointments')    
