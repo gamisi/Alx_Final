@@ -31,7 +31,7 @@
     </li>
 
     <!-- Divider -->
-    <hr class="sidebar-divider my-0">
+    <!-- <hr class="sidebar-divider my-0"> -->
 
     <!-- Divider -->
     <hr class="sidebar-divider my-0">    
@@ -47,30 +47,58 @@
             <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                 
+                    {% if request.user.is_staff %}
                     <a class="collapse-item text-xs" href="{% url 'all_vehicles' %}">
                         <i class="fa fa-car"></i>
                         &nbsp;List Vehicles
                     </a>
+                    {% elif request.user.role.role_name == 'customer' %}
+                    <a class="collapse-item text-xs" href="{% url 'all_vehicles' %}">
+                        <i class="fa fa-car"></i>
+                        &nbsp;My Vehicles
+                    </a>
+                    {% endif %}
 
+                    {% if request.user.is_staff %}
                     <a class="collapse-item text-xs" href="{% url 'all_maintenances' %}">
                         <i class="fa fa-cog"></i>
                         &nbsp;Maintenance
                     </a>
+                    {% elif request.user.role.role_name == 'customer' %}
+                    <a class="collapse-item text-xs" href="{% url 'all_maintenances' %}">
+                        <i class="fa fa-cog"></i>
+                        &nbsp;My Maintenance
+                    </a>
+                    {%endif%}
+
+                    {% if request.user.is_staff %}
+                    <a class="collapse-item text-xs" href="{% url 'all_repairs' %}">
+                        <i class="fa fa-cog"></i>
+                        &nbsp;Repairs
+                    </a>
+                    {% elif request.user.role.role_name == 'customer' %}
 
                     <a class="collapse-item text-xs" href="{% url 'all_repairs' %}">
                         <i class="fa fa-cog"></i>
-                        &nbsp; Repairs
+                        &nbsp;My Repairs
                     </a>
-
-                    <a class="collapse-item text-xs" href="{% url 'all_appointments' %}">
-                        <i class="fa fa-cog"></i>
-                        &nbsp;Appointments
-                    </a>
-
+                    {% endif %}
+                    
+                    {% if request.user.is_staff %}
+                        <a class="collapse-item text-xs" href="{% url 'all_appointments' %}">
+                            <i class="fa fa-cog"></i>
+                            &nbsp;Appointments
+                        </a>
+                    {% elif request.user.role.role_name == 'customer' %} <a class="collapse-item text-xs" href="{% url 'all_appointments' %}">
+                            <i class="fa fa-cog"></i>
+                            &nbsp;My Appointments
+                        </a>
+                    {% endif %}                   
 
                 </div>
             </div>
         </li>
+        {% if request.user.is_staff %}
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block my-0">
         <!-- Nav Item - Pages Collapse Menu -->      
@@ -101,8 +129,10 @@
             </div>
         </li>        
         <hr class="sidebar-divider d-none d-md-block my-0">    
-                    
-        <!-- Nav Item - Pages Collapse Menu -->        
+        {% endif %}          
+        <!-- Nav Item - Pages Collapse Menu --> 
+
+        {% if request.user.is_staff %}   
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#VehicleManagement"
                 aria-expanded="true" aria-controls="collapsePages">
@@ -136,9 +166,10 @@
                 </div>
             </div>
         </li>
-
+        
         <hr class="sidebar-divider d-none d-md-block my-0">    
-
+        {% endif %}
+        
         <!-- Nav Item - Pages Collapse Menu
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#Reports"
@@ -179,8 +210,10 @@
         </li>
         -->
         <!-- Divider -->
+
         <hr class="sidebar-divider d-none d-md-block my-0">
 
+        
         <li class="nav-item ">
             <a class="nav-link" href="">
                 <i class="fa fa-refresh text-white text-xs"></i>

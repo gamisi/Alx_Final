@@ -16,7 +16,7 @@ from django.views.generic import TemplateView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from .forms import RegistrationForm, CustomSetPasswordForm, UserEditForm, GroupEditForm
 from django.contrib.auth import login, logout , authenticate
-from django.contrib.auth.views import PasswordResetConfirmView
+from django.contrib.auth.views import PasswordResetConfirmView, LoginView
 from django.contrib.auth.forms import PasswordResetForm
 from django.db.models import F,CharField, Value
 from django.db.models.functions import Concat
@@ -32,14 +32,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
 from django.http import JsonResponse
 from .mixins import RoleRequiredMixin
-from accounts.decorators import unauthenticated_user
+from accounts.decorators import unauthenticated_user, allowed_users
+from django.utils.decorators import method_decorator
+from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
 """# Create your views here.
 class UserViewset(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = CustomUserSerializer """
 
-class UserLoginView(APIView):
+class ApiLoginView(APIView):
     
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -51,7 +54,7 @@ class UserLoginView(APIView):
                 token, created = Token.objects.get_or_create(user=user)
                 return Response({'here is your token': {token.key}}, status=status.HTTP_200_OK)
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)"""
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @unauthenticated_user
 def redirect_to_login(request):
@@ -59,23 +62,23 @@ def redirect_to_login(request):
 
 def custom_logout(request):
     logout(request)  # This will log the user out
-    return redirect(reverse('login'))  # Redirect to the login page
+    return redirect('login')  # Redirect to the login page
 
 @unauthenticated_user
 def sign_up(request):
 
-    """page_title = os.path.splitext(os.path.basename('registration/sign_up.html'))[0].capitalize()
-    context = {
-
-        'page_title': page_title,
-    }"""
-
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            #login(request, user)
-            return redirect('/sign-up')
+            user = form.save()            
+            role = Role.objects.get(role_name = 'customer')            
+            user.role = role
+            
+            user.save()
+
+            messages.success(request, 'Account created succesfully.')
+
+            return redirect(reverse('sign_up'))
     else:
         form = RegistrationForm()
             
@@ -87,15 +90,20 @@ class AdminDashboardView(LoginRequiredMixin, TemplateView):
     login_url =  '/login/'
 
     def dispatch(self, request, *args, **kwargs):
+
         if request.user.is_authenticated:
-            if request.user.role.role_name == 'customer':
+            if request.user.role is None:
+                raise PermissionDenied
+            elif request.user.role.role_name == 'customer': 
+
                 # Redirect to customer dashboard
-                return redirect(reverse('customer_dashboard'))
+                return redirect(reverse('customer_dashboard')) 
+                              
             else:
                 # Render default admin dashboard
                 return super().dispatch(request, *args, **kwargs)
         else:
-            return self.handle_no_permission(request)
+            return self.handle_no_permission()
 
 class CustomerDashboardView(LoginRequiredMixin, RoleRequiredMixin, TemplateView):
     template_name = 'accounts/customer_dashboard.html'
@@ -147,10 +155,12 @@ class SetCustomPasswordView(PasswordResetConfirmView):
     template_name='registration/password_confirm.html' 
     form_class=CustomSetPasswordForm
 
+@method_decorator(allowed_users(), name='dispatch') 
 class UserListView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/users-list.html'
     login_url = '/login/'
 
+@method_decorator(allowed_users(), name='dispatch') 
 class GroupListView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/groups.html'
     login_url = '/login/' 
@@ -216,7 +226,7 @@ def get_users(request):
     ).values(
         
         # fields that should be selected form the users table
-        'id', 'username', 'email', 'full_name', 'role'
+        'id', 'username', 'email', 'full_name', 'role', 'is_active'
     )
     data = []
     for index, user in enumerate(users):
@@ -244,6 +254,7 @@ def get_users(request):
             'email': user['email'],
             'full_name': user['full_name'],
             'role_name': role_name,
+            'is_status': user['is_active'],
             'actions': format_html(
 
                 '<div class="btn-group">'
@@ -289,6 +300,7 @@ def delete_user(request, pk):
     user.delete()
     return Response({'detail': 'user has been deleted successfully'}, status=200)
 
+@method_decorator(allowed_users(), name='dispatch') 
 class UserDetailView(LoginRequiredMixin, TemplateView):
     form_class = UserEditForm
     template_name = 'accounts/view_user.html'  
@@ -323,6 +335,7 @@ class UserDetailView(LoginRequiredMixin, TemplateView):
             context['form'] = form
             return self.render_to_response(context)
 
+@method_decorator(allowed_users(), name='dispatch') 
 class AddGroupView(LoginRequiredMixin, TemplateView):
     form_class = GroupEditForm
     template_name = 'accounts/add_group.html'

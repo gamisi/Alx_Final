@@ -27,10 +27,11 @@
                     <tr>
                         <th></th>
                         <th>#</th>                        
-                        <th>Full Name</th>
-                        <th>Email</th>                        
+                        <th>Full Name</th>                                            
                         <th>Username</th>
+                        <th>Email</th>    
                         <th>Role</th>
+                        <th>Active</th>
                         <th>Actions</th>                        
                     </tr>
                 </thead>
@@ -64,7 +65,7 @@
             "pageLength":5,
             "aLengthMenu":[[5,10,25,50,-1],[5,10,25,50,"All"]],
             ajax: {
-                url: '/api/users/',
+                url: '/api/users_list/',
                 dataSrc: ''
             },
             columns: [
@@ -75,6 +76,7 @@
                 { data: 'username' },
                 { data: 'email' },                    
                 { data: 'role_name' },
+                { data: 'is_status' },
                 { data: 'actions', orderable:false, searchable:false },
                 
             ],

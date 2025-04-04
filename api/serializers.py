@@ -8,13 +8,13 @@ from django.core.exceptions import ValidationError
 
 class CustomUserSerializer(serializers.ModelSerializer):
 
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(required=False)    
+    confirm_password = serializers.CharField(required=False)
     username = serializers.CharField(read_only=True)
-    confirm_password = serializers.CharField(write_only=True)
     
     class Meta:
         model = CustomUser
-        fields =  ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'confirm_password']
+        fields =  ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'confirm_password', 'role', 'is_active']
     
     def generate_username(self, first_name, last_name):
 
@@ -31,11 +31,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
 
-        """
-        print(type(data))  # Check the type of 'data'
-        print(data)        # Check what 'data' contains
-        """
-
         password = data.get('password')
         confirm_passowrd = data.get('confirm_password')
 
@@ -46,15 +41,24 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     # method validates email
     def validate_email(self, value):
-        #check if email is unique
-        if CustomUser.objects.filter(email=value).exists():
-            raise ValidationError("Email has already been taken")
+
+        user_id = self.instance.id if self.instance else None #get user id, if instance exists.
+        existing_user = CustomUser.objects.filter(email=value)
+
+        if user_id: #if this is an update.
+            existing_user = existing_user.exclude(id=user_id) #exclude the current user.
+
+        if existing_user.exists():
+            raise serializers.ValidationError("This email is already taken.")
         return value
     
-    # This method ensures passowrd is hashed and username is generated
+    # This method ensures passowrd is hashed and username is generated    
     def create(self, validated_data):
         password = validated_data.pop('password')
         confirm_password = validated_data.pop('confirm_password')
+
+        if password != confirm_password:
+            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
 
         # Generate username based on first and last name
         first_name = validated_data.get('first_name')
@@ -84,7 +88,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
-
+           
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
@@ -97,13 +101,26 @@ class TokenSerializer(serializers.ModelSerializer):
 
 class VehicleSerializer(serializers.ModelSerializer):
 
-    owner_name = serializers.SerializerMethodField()
+    owner = serializers.SerializerMethodField()
+    model = serializers.SerializerMethodField()
+    make = serializers.SerializerMethodField()
 
-    def get_owner_name(self, obj):
+    def get_owner(self, obj):
         if obj.owner:
             return f"{obj.owner.first_name} {obj.owner.last_name}"
         return None
     
+    def get_make(self, obj):
+        if obj.make:
+            return f"{obj.make.make_name}"
+        return None
+
+    def get_model(self, obj):
+        if obj.model:
+            return f"{obj.model.model_name}"
+        return None
+
+
     class Meta:
         model = Vehicle
         fields = '__all__'

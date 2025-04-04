@@ -3,7 +3,7 @@ from accounts.models import CustomUser
 from .models import Vehicle, Make, Model, Technician, Repair, Maintenance, MaintenanceType, Appointment, Notification
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Row, HTML
-# from django.contrib.auth import get_user_model
+from django.utils import timezone
 import datetime
 
 
@@ -91,7 +91,7 @@ class AppointmentForm(forms.ModelForm):
     appointment_date = forms.DateTimeField(
 
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M')
-        
+
     )
 
     class Meta:
@@ -102,15 +102,21 @@ class AppointmentForm(forms.ModelForm):
         cleaned_data = super().clean()
         vehicle = cleaned_data.get('vehicle_id')
         appointment_date = cleaned_data.get('appointment_date')
-        current_date = datetime.date.today()
+        instance = getattr(self, 'instance', None)
+        
+        if vehicle and appointment_date:
+            # Check for existing open appointments, excluding the current appointment if editing.
+            open_appointment = Appointment.objects.filter(vehicle_id=vehicle, status='open')
 
-        if vehicle:
-            open_appointment = Appointment.objects.filter(vehicle_id=vehicle, status='open').exists()
-            if open_appointment:
+            if instance:
+                open_appointment = open_appointment.exclude(pk=instance.pk) #exclude the current appointment.
+
+            if open_appointment.exists():
                 raise forms.ValidationError('Vehicle already has an open appointment please contact admin to close it before opening a new appointment.')
-            
-            if appointment_date < current_date:
-                raise forms.ValidationError('Appointment date cannot be in the past.')
+
+            if appointment_date < timezone.now():
+                raise forms.ValidationError('Appointment date and time cannot be in the past.')
+
 
         return cleaned_data
     
@@ -119,13 +125,13 @@ class AppointmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if user:
-            print(f"User Role: {user.role if hasattr(user, 'role') else None}") #print the user role
+            print(f"User Role: {user.role if hasattr(user, 'role') else None}") 
             if hasattr(user, 'role') and user.role and user.role.role_name == 'customer':
                 self.fields['vehicle_id'].queryset = Vehicle.objects.filter(owner=user)
             else:
                 self.fields['vehicle_id'].queryset = Vehicle.objects.all()
         else:
-            print("User is None") #print if user is none.
+            print("User is None") 
 
 class NotificationForm(forms.ModelForm):
 

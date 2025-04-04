@@ -9,3 +9,4 @@ django-filter>=23.2
 gunicorn>=21.2.0  # Required for deploying on Heroku or similar platforms
 # whitenoise>=6.5.0  # Static file handling for production
 python-decouple>=3.8
+sentry-sdk>=2.25.1

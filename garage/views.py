@@ -10,6 +10,10 @@ from django.views.generic import TemplateView, DetailView, DeleteView
 from .forms import AddVehicleForm, MakeForm, ModelForm, TechnicianForm, RepairForm, MaintenanceForm, NotificationForm, AppointmentForm, MaintenanceTypeForm
 from django.shortcuts import render, get_object_or_404, redirect
 from decimal import Decimal
+from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
+from accounts.decorators import allowed_users
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 
@@ -83,7 +87,14 @@ class AddVehicleView(LoginRequiredMixin, TemplateView):
         pk = self.kwargs.get('pk') #get pk from url if available
         if pk:
             vehicle = get_object_or_404(Vehicle, pk=pk)
+
+            if self.request.user.role.role_name == 'customer':
+                if vehicle.owner != self.request.user:
+                    #return Http404("Appointment not found or not yours.")
+                    raise PermissionDenied
+                
             context['form'] = self.form_class(instance=vehicle)
+
         else:
             context['form'] = self.form_class()
         return context
@@ -122,10 +133,12 @@ def delete_vehicle(request, pk):
     except Exception as e:
         return Response({'error': str(e)}, status=403)
     
+@method_decorator(allowed_users(), name='dispatch')
 class MakeView(LoginRequiredMixin, TemplateView):
     template_name = 'garage/makes.html'
     login_url = '/login'
 
+@method_decorator(allowed_users(), name='dispatch')
 class ModelView(LoginRequiredMixin, TemplateView):
     template_name = 'garage/models.html'
     login_url = '/login'
@@ -217,6 +230,7 @@ def get_models(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+@method_decorator(allowed_users(), name='dispatch')
 class AddModelView(LoginRequiredMixin, TemplateView):
     form_class = ModelForm
     template_name = 'garage/view_models.html'
@@ -251,6 +265,7 @@ class AddModelView(LoginRequiredMixin, TemplateView):
             context['form'] = form
             return self.render_to_response(context)
 
+@method_decorator(allowed_users(), name='dispatch')
 class AddMakeView(LoginRequiredMixin, TemplateView):
     form_class = MakeForm
     template_name = 'garage/view_makes.html'
@@ -313,6 +328,7 @@ def delete_model(request, pk):
     except Exception as e:
         return Response({'error': str(e)}, status=403)
 
+@method_decorator(allowed_users(), name='dispatch')
 class TechnicianView(LoginRequiredMixin, TemplateView):
     template_name = 'garage/technicians.html'
     login_url = '/login/'
@@ -361,7 +377,8 @@ def get_technicians(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=500)
-    
+
+@method_decorator(allowed_users(), name='dispatch')
 class AddMechanicView(LoginRequiredMixin, TemplateView):
     form_class = TechnicianForm
     template_name = 'garage/view_technician.html'
@@ -410,6 +427,7 @@ def delete_mechanic(request, pk):
     except Exception as e:
         return Response({'error': str(e)}, status=403)
 
+@method_decorator(allowed_users(), name='dispatch')
 class MaintenanceTypeView(LoginRequiredMixin, TemplateView):
     template_name = 'garage/maintenancetype.html'
     login_url = '/login/'
@@ -460,6 +478,7 @@ def get_maintenance_types(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+@method_decorator(allowed_users(), name='dispatch')
 class AddMaintenancetypeView(LoginRequiredMixin, TemplateView):
     form_class = MaintenanceTypeForm
     template_name = 'garage/view_maintenancetype.html'
@@ -509,6 +528,7 @@ def delete_maintenance_type(request, pk):
     except Exception as e:
         return Response({'error': str(e)}, status=403)
 
+
 class MaintenanceView(LoginRequiredMixin, TemplateView):
     template_name = 'garage/maintenance.html'
     login_url = '/login/'
@@ -550,7 +570,22 @@ def get_maintenances(request):
                     edit_url
                 )
 
+                actions = ''
+
+                if request.user.is_staff:                    
+                    actions = format_html(
+                        
+                        '<div class="btn-group">'
+                        '    {}'
+                        '    <button class="btn btn-sm btn-danger ml-1" title="delete vehicle" data-id="{}" id="deleteBtn">'
+                        '        <i class="fa fa-trash" aria-hidden="true"></i>'
+                        '    </button>'
+                        '</div>',
+                        edit_link, maintenance.id
+                    )
+
                 data.append({
+
                     'rowIndex': index + 1,
                     'id': maintenance.id,                    
                     'vehicle': maintenance.vehicle_id.reg_no, 
@@ -561,15 +596,7 @@ def get_maintenances(request):
                     'cost': maintenance.cost,
                     'miscellaneous_cost': maintenance.miscellaneous_cost,
                     'total_cost': maintenance.total_cost,
-                    'actions': format_html(
-                        '<div class="btn-group">'
-                        '    {}'
-                        '    <button class="btn btn-sm btn-danger ml-1" title="delete vehicle" data-id="{}" id="deleteBtn">'
-                        '        <i class="fa fa-trash" aria-hidden="true"></i>'
-                        '    </button>'
-                        '</div>',
-                        edit_link, maintenance.id
-                    ),
+                    'actions': actions,
                     'checkbox': format_html(
                         '<input type="checkbox" name="role_checkbox" data-id="{}"><label></label>',
                         maintenance.id
@@ -581,6 +608,7 @@ def get_maintenances(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+@method_decorator(allowed_users(), name='dispatch')
 class AddMaintenanceView(LoginRequiredMixin, TemplateView):
     form_class  = MaintenanceForm
     template_name = 'garage/view_maintenance.html'
@@ -627,10 +655,12 @@ class AddMaintenanceView(LoginRequiredMixin, TemplateView):
             context['form'] = form
             return self.render_to_response(context)
 
+
 class RepairsView(LoginRequiredMixin, TemplateView):
     template_name = 'garage/all_repairs.html'
     login_url = '/login/' 
 
+@method_decorator(allowed_users(), name='dispatch')
 class AddRepairsView(LoginRequiredMixin, TemplateView):
     form_class = RepairForm
     template_name = 'garage/view_repairs.html'
@@ -692,6 +722,21 @@ def get_repairs(request):
                 edit_url
             )
 
+            actions = ''
+
+            if request.user.is_staff:
+                actions = format_html(
+
+                    '<div class="btn-group">'
+                        '{}'
+                        '<button class="btn btn-sm btn-danger ml-1" title="delete vehicle" data-id="{}" id="deleteBtn">'
+                            '<i class="fa fa-trash" aria-hidden="true"></i>'
+                        '</button>'
+                    '</div>',
+                    edit_link, repair.id
+
+                )
+
             data.append({
 
                 'rowIndex': index + 1,
@@ -701,15 +746,7 @@ def get_repairs(request):
                 'repair_date': repair.repair_date,
                 'repair_cost': repair.repair_cost,
                 'description': repair.description,             
-                'actions': format_html(
-                    '<div class="btn-group">'
-                    '    {}'
-                    '    <button class="btn btn-sm btn-danger ml-1" title="delete vehicle" data-id="{}" id="deleteBtn">'
-                    '        <i class="fa fa-trash" aria-hidden="true"></i>'
-                    '    </button>'
-                    '</div>',
-                    edit_link, repair.id
-                ),
+                'actions': actions,
                 'checkbox': format_html(
                     '<input type="checkbox" name="role_checkbox" data-id="{}"><label></label>',
                     repair.id
@@ -785,13 +822,19 @@ def get_appointments(request):
                     edit_url
                 )
 
+                # Format the datetime to be readable.
+                if appointment.appointment_date:
+                    readable_date = appointment.appointment_date.strftime("%Y-%m-%d %H:%M:%S")
+                else:
+                    readable_date = None
+
                 data.append({
 
                         'rowIndex': index + 1,
                         'id': appointment.id,  
                         'vehicle': appointment.vehicle_id.reg_no,     
                         'owner': appointment.vehicle_id.owner.username if appointment.vehicle_id.owner else None,
-                        'appointment_date': appointment.appointment_date,
+                        'appointment_date': readable_date,
                         'description': appointment.description, 
                         'status': appointment.status,            
                         'actions': format_html(
@@ -826,7 +869,17 @@ class AddAppoitnmentView(LoginRequiredMixin, TemplateView):
         pk = self.kwargs.get('pk')
         if pk:
             appointment = get_object_or_404(Appointment, pk=pk)
+            vehicle = get_object_or_404(Vehicle, reg_no=appointment.vehicle_id)           
+            
+            # print(appointment.vehicle_id)
+
+            if self.request.user.role.role_name == 'customer':
+                if vehicle.owner != self.request.user:
+                    #return Http404("Appointment not found or not yours.")
+                    raise PermissionDenied
+                                        
             context['form'] = self.form_class(instance=appointment, user=self.request.user)
+
         else:
             context['form'] = self.form_class(user=self.request.user)
         return context

@@ -12,7 +12,7 @@ class Role (models.Model):
 class CustomUser(AbstractUser):
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
     email = models.EmailField(unique=True, blank=False, null=False)
-
+    
     def __str__(self):
         return self.username
 

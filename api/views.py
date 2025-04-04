@@ -3,12 +3,13 @@ from rest_framework import generics, viewsets
 from .serializers import CustomUserSerializer, UserLoginSerializer, VehicleSerializer, MakeSerializer, ModelSerializer, TechnicianSerializer, AppointmentSerializer, MaintenanceSerializer, MaintenanceTypeSerializer, NotificationSerializer, RepairSerializer
 from accounts.models import CustomUser
 from garage.models import Vehicle, Make, Model, Technician, Appointment, Repair, Maintenance, Notification, MaintenanceType
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.shortcuts import redirect
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import PermissionDenied
 
 class APIRoot(APIView):
     #permission_classes = [IsAuthenticated]
@@ -26,8 +27,25 @@ class APIRoot(APIView):
 class UserViewset(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
+
+    def create(self, request, *args, **kwargs):
+        if not IsAdminUser().has_permission(request, self):
+            raise PermissionDenied("Only admins can create users can create users.")
+        return super().create(request, *args, **kwargs)
+
+
+    def update(self, request, *args, **kwargs):
+        if not IsAdminUser().has_permission(request, self):
+            raise PermissionDenied("Only admins can update users.")
+        return super().update(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        if not IsAdminUser().has_permission(request, self):
+            raise PermissionDenied("Only admin users can delete users.")
+        return super().destroy(request, *args, **kwargs)
+    
 class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
@@ -75,6 +93,43 @@ class RepairViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 class NotificationsViewSet(viewsets.ModelViewSet):
+
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
+
+
+# More api urls
+
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]   
+
+class UserCreateView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAdminUser]
+
+class UserUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAdminUser]
+
+class UserDeleteView(generics.DestroyAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAdminUser]    
+
+#vehicles API's 
+class VehicleListView(generics.ListAPIView):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+

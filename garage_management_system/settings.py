@@ -12,6 +12,17 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+sentry_sdk.init(
+
+    dsn="https://2dd159484ff14e6fc587d4982a881b80@o4509096127561728.ingest.us.sentry.io/4509096130183168",
+    send_default_pii=True,
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,  
+    
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,6 +85,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'garage_management_system.urls'
 
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -81,7 +94,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                
+
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -141,7 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = 'dashboard'
 
-LOGOUT_REDIRECT_URL ='login'
+LOGOUT_REDIRECT_URL ='/login/'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -155,7 +168,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
