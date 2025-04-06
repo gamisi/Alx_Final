@@ -123,7 +123,7 @@ class AdminDashboardView(LoginRequiredMixin, TemplateView):
         context['appointment_count'] = appointment_count
 
         return context
-    
+
 class UserProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/profile.html'
     login_url = '/login/'
@@ -146,9 +146,7 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
             messages.success(request, 'user updated succesfully.')
 
         return redirect('user_profile')
-        
-
-        
+             
 class CustomerDashboardView(LoginRequiredMixin, RoleRequiredMixin, TemplateView):
     template_name = 'accounts/customer_dashboard.html'
     role_required = 'customer'
