@@ -4,7 +4,101 @@
 <div class="container-fluid">
     <div class="container">
 
-        <h4>Welcome to Dashboard</h4>
+        <div class="row py-1">
+      
+            <div class="col-xl-3 col-md-6 mb-1 px-2">
+                <div class="card bg-success text-white my-0">
+                    <div class="card-body my-0 py-2">
+                        <p class="card-category mb-0">Vehicles</p>
+                        <h4 class="card-title font-weight-bold">{{ vehicle_count }}</h4>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <a class="small text-white stretched-link" href="{% url 'all_vehicles' %}">View Details</a>
+                        <div class="small text-white"><i class="fa fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-xl-3 col-md-6 mb-1 px-2">
+                <div class="card bg-warning text-white my-0">
+                    <div class="card-body my-0 py-2">
+                        <p class="card-category mb-0">Maintenance</p>
+                        <h4 class="card-title font-weight-bold">{{ maintenance_count }}</h4>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <a class="small text-white stretched-link" href="{% url 'all_maintenances' %}">View Details</a>
+                        <div class="small text-white"><i class="fa fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-xl-3 col-md-6 mb-1 px-2">
+                <div class="card bg-primary text-white my-0">
+                    <div class="card-body my-0 py-2">
+                        <p class="card-category mb-0">Repairs</p>
+                        <h4 class="card-title font-weight-bold">{{ repair_count }}</h4>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <a class="small text-white stretched-link" href="{% url 'all_repairs' %}">View Details</a>
+                        <div class="small text-white"><i class="fa fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-xl-3 col-md-6 mb-1 px-2">
+                <div class="card bg-danger text-white my-0">
+                    <div class="card-body my-0 py-2">
+                        <p class="card-category mb-0">Appointments</p>
+                        <h4 class="card-title font-weight-bold">{{ appointment_count }}</h4>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <a class="small text-white stretched-link" href="{% url 'all_appointments' %}">View Details</a>
+                        <div class="small text-white"><i class="fa fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+    
+            <!--         
+                <div class="col-md-3">
+                    <div class="card card-stats border-0 rounded-0 text-gray shadow-sm bg-danger">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-5">
+                                    <div class="icon-big text-center p-4 bg-white">
+                                        <i class="fa fa-life-ring"></i>
+                                    </div>
+                                </div>
+                                <div class="col-7 d-flex align-items-center">
+                                    <div class="numbers">
+                                        <p class="card-category mb-0">Open jobs</p>
+                                        <h4 class="card-title">93</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-stats border-0 rounded-0 text-gray bg-info">
+                        <div class="card-body ">
+                            <div class="row">
+                                <div class="col-5">
+                                    <div class="icon-big text-center p-4 bg-white">
+                                        <i class="fa fa-check-circle"></i>
+                                    </div>
+                                </div>
+                                <div class="col-7 d-flex align-items-center">
+                                    <div class="numbers">
+                                        <p class="card-category mb-0">Closed jobs</p>
+                                        <h4 class="card-title">35</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            -->
+        </div>
 
     </div>
 </div>

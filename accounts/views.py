@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, DetailView, DeleteView
 from django.urls import reverse_lazy
-from .forms import RegistrationForm, CustomSetPasswordForm, UserEditForm, GroupEditForm
+from .forms import RegistrationForm, CustomSetPasswordForm, UserEditForm, GroupEditForm, UserProfileForm
 from django.contrib.auth import login, logout , authenticate
 from django.contrib.auth.views import PasswordResetConfirmView, LoginView
 from django.contrib.auth.forms import PasswordResetForm
@@ -36,6 +36,9 @@ from accounts.decorators import unauthenticated_user, allowed_users
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from garage.models import Vehicle, Maintenance, Repair, Appointment
+
+
 
 """# Create your views here.
 class UserViewset(viewsets.ModelViewSet):
@@ -105,10 +108,68 @@ class AdminDashboardView(LoginRequiredMixin, TemplateView):
         else:
             return self.handle_no_permission()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+                        
+        vehicle_count = Vehicle.objects.all().count()        
+        maintenance_count = Maintenance.objects.all().count() 
+        repair_count = Repair.objects.all().count()        
+        appointment_count =  Appointment.objects.all().count()
+
+        
+        context['vehicle_count'] = vehicle_count
+        context['maintenance_count'] = maintenance_count
+        context['repair_count'] = repair_count
+        context['appointment_count'] = appointment_count
+
+        return context
+    
+class UserProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounts/profile.html'
+    login_url = '/login/'
+    form_class = UserProfileForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)        
+        user = get_object_or_404(CustomUser, id=self.request.user.id) 
+        context['form'] = self.form_class(instance=user)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = get_object_or_404(CustomUser, id=self.request.user.id) 
+        form = self.form_class(request.POST, instance=user)
+
+        if form.is_valid():
+            form.save() 
+        
+        return redirect('user_profile')
+        
+
+        
 class CustomerDashboardView(LoginRequiredMixin, RoleRequiredMixin, TemplateView):
     template_name = 'accounts/customer_dashboard.html'
     role_required = 'customer'
     login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        vehicles = Vehicle.objects.filter(owner=user)  
+
+        # Get counts for the logged-in customer
+        vehicle_count = Vehicle.objects.filter(owner=user).count()        
+        maintenance_count = Maintenance.objects.filter(vehicle_id__in=vehicles).count() 
+        repair_count = Repair.objects.filter(vehicle_id__in = vehicles).count()        
+        appointment_count =  Appointment.objects.filter(vehicle_id__in = vehicles).count()
+
+        # Add counts to the context
+        context['vehicle_count'] = vehicle_count
+        context['maintenance_count'] = maintenance_count
+        context['repair_count'] = repair_count
+        context['appointment_count'] = appointment_count
+
+        return context
 
 def custom_password_reset(request):
     if request.method == 'POST':

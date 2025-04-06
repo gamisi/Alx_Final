@@ -21,7 +21,6 @@ urlpatterns =  [
     path('accounts/customer_dashboard/', CustomerDashboardView.as_view(), name='customer_dashboard'),
     path('logout/', views.custom_logout, name='logout'),
     path('sign-up/', views.sign_up, name='sign_up'),
-    #path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),
     path('password_reset/', views.custom_password_reset, name='password_reset'),
     path('reset/<uidb64>/<token>/', SetCustomPasswordView.as_view(), name='password_reset_confirm'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='accounts/password_reset_done.html'), name='password_reset_done'),
@@ -38,7 +37,7 @@ urlpatterns =  [
     path('accounts/edit_group/<int:pk>/', AddGroupView.as_view(), name="edit_group"),
     path('accounts/delete-group/<int:pk>/', views.delete_group, name='delete_group'),
     path('accounts/delete-user/<int:pk>/', views.delete_user, name='delete_user'),
-    
+    path('accounts/my_profile', views.UserProfileView.as_view(), name='user_profile'),
 
     
 

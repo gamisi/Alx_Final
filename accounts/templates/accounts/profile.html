@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} My Profile  {% endblock %}:
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="container-fluid">
+    <div class="container">
+
+        <div class="card border-0 shadow-none">
+
+            <!-- 
+            <div class="card-header bg-primary border-0">
+                <h4 class="fw-bold text-center text-white">My Profile</h4>
+            </div>
+            -->
+            
+            <div class="card-body">
+                
+                <form method="post">
+                    {% csrf_token %}{{form|crispy}}        
+                    <button type="submit" class="btn btn-sm btn-primary float-right fw-500">update profile</button>
+                </form>
+
+            </div>
+        </div>  
+
+    </div>
+</div>
+
+{% endblock %}

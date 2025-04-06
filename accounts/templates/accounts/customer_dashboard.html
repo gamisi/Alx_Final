@@ -10,10 +10,10 @@
                 <div class="card bg-success text-white my-0">
                     <div class="card-body my-0 py-2">
                         <p class="card-category mb-0">Vehicles</p>
-                        <h4 class="card-title font-weight-bold">0</h4>
+                        <h4 class="card-title font-weight-bold">{{ vehicle_count }}</h4>
                     </div>
                     <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white stretched-link" href="">View Details</a>
+                        <a class="small text-white stretched-link" href="{% url 'all_vehicles' %}">View Details</a>
                         <div class="small text-white"><i class="fa fa-arrow-right"></i></div>
                     </div>
                 </div>
@@ -23,10 +23,10 @@
                 <div class="card bg-warning text-white my-0">
                     <div class="card-body my-0 py-2">
                         <p class="card-category mb-0">Maintenance</p>
-                        <h4 class="card-title font-weight-bold">0</h4>
+                        <h4 class="card-title font-weight-bold">{{ maintenance_count }}</h4>
                     </div>
                     <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white stretched-link" href="">View Details</a>
+                        <a class="small text-white stretched-link" href="{% url 'all_maintenances' %}">View Details</a>
                         <div class="small text-white"><i class="fa fa-arrow-right"></i></div>
                     </div>
                 </div>
@@ -36,10 +36,10 @@
                 <div class="card bg-primary text-white my-0">
                     <div class="card-body my-0 py-2">
                         <p class="card-category mb-0">Repairs</p>
-                        <h4 class="card-title font-weight-bold">0</h4>
+                        <h4 class="card-title font-weight-bold">{{ repair_count }}</h4>
                     </div>
                     <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white stretched-link" href="">View Details</a>
+                        <a class="small text-white stretched-link" href="{% url 'all_repairs' %}">View Details</a>
                         <div class="small text-white"><i class="fa fa-arrow-right"></i></div>
                     </div>
                 </div>
@@ -49,10 +49,10 @@
                 <div class="card bg-danger text-white my-0">
                     <div class="card-body my-0 py-2">
                         <p class="card-category mb-0">Appointments</p>
-                        <h4 class="card-title font-weight-bold">0</h4>
+                        <h4 class="card-title font-weight-bold">{{ appointment_count }}</h4>
                     </div>
                     <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white stretched-link" href="">View Details</a>
+                        <a class="small text-white stretched-link" href="{% url 'all_appointments' %}">View Details</a>
                         <div class="small text-white"><i class="fa fa-arrow-right"></i></div>
                     </div>
                 </div>

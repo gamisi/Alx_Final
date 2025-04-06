@@ -93,3 +93,16 @@ class GroupEditForm(forms.ModelForm):
 
         if self.instance.pk:  
             self.fields['permissions'].initial = self.instance.permissions.all()
+
+class UserProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['readonly'] = True
+        self.fields['username'].help_text = None
+    
