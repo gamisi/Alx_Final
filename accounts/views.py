@@ -142,7 +142,9 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
 
         if form.is_valid():
             form.save() 
-        
+            
+            messages.success(request, 'user updated succesfully.')
+
         return redirect('user_profile')
         
 

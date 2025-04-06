@@ -35,7 +35,7 @@ form input:focus {
     font-weight: 500;
 }
 
-.alert-danger ul li {
+.alert-danger ul li, .alert-success ul li {
 
     font-size:12px !important;
 }

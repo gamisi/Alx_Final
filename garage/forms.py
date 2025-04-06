@@ -18,15 +18,12 @@ class AddVehicleForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if user:
-            print(f"User Role: {user.role.role_name if user.role else None}")
-
+            #print(f"User Role: {user.role.role_name if user.role else None}")
             if user.role and user.role.role_name == 'customer':
                 self.fields['owner'].queryset = CustomUser.objects.filter(id=user.id)
             else:
-                self.fields['owner'].queryset = CustomUser.objects.all()
-           
-
-    
+                self.fields['owner'].queryset = CustomUser.objects.filter(role__role_name='customer')
+               
 class MakeForm(forms.ModelForm):
 
     class Meta:
