@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, viewsets
 from .serializers import CustomUserSerializer, UserLoginSerializer, VehicleSerializer, MakeSerializer, ModelSerializer, TechnicianSerializer, AppointmentSerializer, MaintenanceSerializer, MaintenanceTypeSerializer, NotificationSerializer, RepairSerializer
-from accounts.models import CustomUser
+from accounts.models import CustomUser, Role
 from garage.models import Vehicle, Make, Model, Technician, Appointment, Repair, Maintenance, Notification, MaintenanceType
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.response import Response
@@ -123,6 +123,7 @@ class UserCreateView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
+       
 
 class UserUpdateView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()

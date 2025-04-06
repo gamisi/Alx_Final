@@ -7,18 +7,23 @@ from django.core.exceptions import ValidationError
 import logging
 from rest_framework.response import Response
 from django.utils import timezone
-
+from rest_framework import status
 
 class CustomUserSerializer(serializers.ModelSerializer):
 
-    password = serializers.CharField(write_only=True, required=False)    
-    confirm_password = serializers.CharField(write_only=True, required=False)
+    password = serializers.CharField(write_only=True, required=False, style={'input_type': 'password'})    
+    confirm_password = serializers.CharField(write_only=True, required=False, style={'input_type': 'password'})
     username = serializers.CharField(read_only=True)
         
     class Meta:
         model = CustomUser
         fields =  ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'confirm_password', 'role', 'is_active']
-    
+
+        extra_kwargs = {
+
+            'password': {'write_only': True},
+            'confirm_password': {'write_only': True},
+        }
 
     def generate_username(self, first_name, last_name):
 
@@ -51,8 +56,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         confirm_password = validated_data.pop('confirm_password')
 
-        if password != confirm_password:
-            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+        # Validate password fields to make sure they are not empty on user creation
+        if password or confirm_password:
+            if not password:
+                raise serializers.ValidationError({"password": "Password is required."})
+            if not confirm_password:
+                raise serializers.ValidationError({"confirm_password": "Confirm password is required."})
+            if password != confirm_password:
+                raise serializers.ValidationError({"confirm_password": "password and confirm must match."})
 
         # Generate username based on first and last name
         first_name = validated_data.get('first_name')
@@ -62,7 +73,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create(**validated_data)
         user.set_password(password) #hash the password using PKF
         user.save()
-    
+
         return user
 
     def update(self, instance, validated_data):
