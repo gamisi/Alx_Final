@@ -1,0 +1,16 @@
+{% block content %}
+<div class="container-fluid my-5 py-5">
+  <div class="container d-flex justify-content-center align-items-center px-5">
+
+    <div class="card border-0 shadow-lg">
+        <div class="card-body">
+
+          <p>Hello Admin,</p>
+          <p>The customer {{ owner_full_name }} has set up a new appointment for vehicle with reg_no {{ vehicle_reg_no }} slated for {{ appointment_date }}</p>
+
+        </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

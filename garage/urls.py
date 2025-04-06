@@ -1,6 +1,6 @@
 from .import views
 from django.urls import path
-from .views import VehicleListView, AddVehicleView, MakeView, ModelView, AddMakeView, AddModelView, TechnicianView, AddMechanicView, MaintenanceTypeView, AddMaintenancetypeView, MaintenanceView, AddMaintenanceView, RepairsView, AddRepairsView, AppointmentView, AddAppoitnmentView
+from .views import VehicleListView, AddVehicleView, MakeView, ModelView, AddMakeView, AddModelView, MechanicView, AddMechanicView, MaintenanceTypeView, AddMaintenancetypeView, MaintenanceView, AddMaintenanceView, RepairsView, AddRepairsView, AppointmentView, AddAppoitnmentView
 
 urlpatterns = [
         
@@ -26,7 +26,7 @@ urlpatterns = [
         path('delete-model/<int:pk>/', views.delete_model, name='delete_model'),
 
         #mechanics
-        path('technicians/', TechnicianView.as_view(), name='all_mechanics'),
+        path('technicians/', MechanicView.as_view(), name='all_mechanics'),
         path('api/technicians/', views.get_technicians, name='mechanics'),
         path('add_mechanic/', AddMechanicView.as_view(), name="add_mechanic"),
         path('edit_mechanic/<int:pk>/', AddMechanicView.as_view(), name="edit_mechanic"),

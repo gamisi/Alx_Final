@@ -65,5 +65,10 @@ form select {
 .alert {
 
     font-size:12px !important;
-    
+
+}
+
+.card-footer a {
+
+    text-decoration: none !important;
 }

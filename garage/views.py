@@ -14,6 +14,11 @@ from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
 from accounts.decorators import allowed_users
 from django.utils.decorators import method_decorator
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
 
 # Create your views here.
 
@@ -90,13 +95,12 @@ class AddVehicleView(LoginRequiredMixin, TemplateView):
 
             if self.request.user.role.role_name == 'customer':
                 if vehicle.owner != self.request.user:
-                    #return Http404("Appointment not found or not yours.")
                     raise PermissionDenied
                 
-            context['form'] = self.form_class(instance=vehicle)
+            context['form'] = self.form_class(instance=vehicle, user=self.request.user)
 
         else:
-            context['form'] = self.form_class()
+            context['form'] = self.form_class(user=self.request.user)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -128,6 +132,7 @@ def delete_vehicle(request, pk):
             return Response({'detail': 'You do not have permissions to delete a vehicle'}, status=403)
         
         vehicle.delete()
+
         return Response({'detail': 'vehicle has been deleted successfully'}, status=200)
 
     except Exception as e:
@@ -185,7 +190,6 @@ def get_makes(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=500)
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -329,7 +333,7 @@ def delete_model(request, pk):
         return Response({'error': str(e)}, status=403)
 
 @method_decorator(allowed_users(), name='dispatch')
-class TechnicianView(LoginRequiredMixin, TemplateView):
+class MechanicView(LoginRequiredMixin, TemplateView):
     template_name = 'garage/technicians.html'
     login_url = '/login/'
 
@@ -544,7 +548,6 @@ def get_maintenances(request):
         if user.role.role_name == 'customer':
             # Get the user's vehicles.
             vehicles = Vehicle.objects.filter(owner=user)  
-            #filter maintenances
             maintenances = Maintenance.objects.filter(vehicle_id__in=vehicles) 
         else:
             maintenances = Maintenance.objects.all()
@@ -872,7 +875,7 @@ class AddAppoitnmentView(LoginRequiredMixin, TemplateView):
             vehicle = get_object_or_404(Vehicle, reg_no=appointment.vehicle_id)           
             
             # print(appointment.vehicle_id)
-
+            
             if self.request.user.role.role_name == 'customer':
                 if vehicle.owner != self.request.user:
                     #return Http404("Appointment not found or not yours.")
@@ -895,6 +898,30 @@ class AddAppoitnmentView(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             
             appointment = form.save()
+
+            vehicle = appointment.vehicle_id
+            owner = vehicle.owner
+
+            email_subject  = 'APPOINTMENT CREATED SUCCESSFULLY'
+            email = 'gamisi.ga@gmail.com'
+            email_body = render_to_string('garage/email.html', {
+                
+                'user': request.user,
+                'owner_full_name': f"{owner.first_name} {owner.last_name}",
+                'appointment_date': appointment.appointment_date,
+                'vehicle_reg_no': vehicle.reg_no,
+
+            })
+
+            send_mail(
+                
+                email_subject, 
+                email_body, 
+                settings.DEFAULT_FROM_EMAIL, [email],
+                html_message=email_body,
+
+            )
+
             if pk:       
                 return redirect('edit_appointment', pk=appointment.pk)     
             else:
@@ -910,7 +937,10 @@ class AddAppoitnmentView(LoginRequiredMixin, TemplateView):
 def delete_appointment(request, pk):
     try:
         appointment = get_object_or_404(Appointment, pk=pk)
-        if not request.user.has_perm('delete_appointment', appointment):
+
+        print(f"User Permissions: {request.user.get_all_permissions()}")
+
+        if not request.user.has_perm('garage.delete_appointment', appointment):
             return Response({'detail': 'You do not have permissions to delete an appointment'}, status=403)
         
         appointment.delete()

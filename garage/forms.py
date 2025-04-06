@@ -14,15 +14,19 @@ class AddVehicleForm(forms.ModelForm):
         fields =('reg_no','owner', 'model', 'make', 'year')
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.field_class = 'filtered-select'
-        self.helper.layout = Layout(
 
-            Field('model', css_class='filtered-select')
+        if user:
+            print(f"User Role: {user.role.role_name if user.role else None}")
 
-        )
+            if user.role and user.role.role_name == 'customer':
+                self.fields['owner'].queryset = CustomUser.objects.filter(id=user.id)
+            else:
+                self.fields['owner'].queryset = CustomUser.objects.all()
+           
 
+    
 class MakeForm(forms.ModelForm):
 
     class Meta:
@@ -124,14 +128,13 @@ class AppointmentForm(forms.ModelForm):
         user = kwargs.pop('user', None) 
         super().__init__(*args, **kwargs)
 
-        if user:
-            print(f"User Role: {user.role if hasattr(user, 'role') else None}") 
-            if hasattr(user, 'role') and user.role and user.role.role_name == 'customer':
+        if user:            
+            # print(f"User Role: {user.role if hasattr(user, 'role') else None}") 
+            if user.role and user.role.role_name == 'customer':
                 self.fields['vehicle_id'].queryset = Vehicle.objects.filter(owner=user)
             else:
                 self.fields['vehicle_id'].queryset = Vehicle.objects.all()
-        else:
-            print("User is None") 
+        
 
 class NotificationForm(forms.ModelForm):
 
