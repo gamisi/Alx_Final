@@ -12,6 +12,19 @@
             </div>
             -->
             <div class="card-body">
+
+                <div class="alert alert-block alert-success">
+                    <ul class="m-0">
+                        
+                            <li> 
+                                Tets credentials: <br />
+                                <b>customer: | username: test.customer | password: 12345678 </b> <br />
+                                <b>admin: |    username: admin | password: 12345678 </b> <br />
+                                <b>Nb: these credentials are for test purposes only</b>
+                            </li>
+                        
+                    </ul>
+                </div>
                 
                 <form method="post">
                     {% csrf_token %}{{form|crispy}}        

@@ -76,10 +76,26 @@ def sign_up(request):
             user = form.save()            
             role = Role.objects.get(role_name = 'customer')            
             user.role = role
-            
             user.save()
+            
+            email_subject  = 'ACCOUNT CREATED SUCCESSFULLY'
+            email = user.email
+            email_body = render_to_string('garage/email.html', {
+                
+                'user': user,
+                
+            })
 
-            messages.success(request, 'Account created succesfully.')
+            send_mail(
+                
+                email_subject, 
+                email_body, 
+                settings.DEFAULT_FROM_EMAIL, [email],
+                html_message=email_body,
+
+            )
+
+            messages.success(request, f'Account created succesfully. An email has been sent to the email you registered with. Your usename is {user.username} . You can go ahead and login to your account')
 
             return redirect(reverse('sign_up'))
     else:

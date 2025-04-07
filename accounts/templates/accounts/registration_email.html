@@ -1,0 +1,16 @@
+{% block content %}
+<div class="container-fluid my-5 py-5">
+  <div class="container d-flex justify-content-center align-items-center px-5">
+
+    <div class="card border-0 shadow-lg">
+        <div class="card-body">
+
+          <p>Hello {{ user.username }},</p>
+          <p>Your account has beeen creates successfully. Your username is {{ user.username }} use it to login with your chosen password.</p>
+
+        </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

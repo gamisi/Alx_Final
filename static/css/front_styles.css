@@ -38,6 +38,7 @@ form input:focus {
 .alert-danger ul li, .alert-success ul li {
 
     font-size:12px !important;
+    list-style-type: none;
 }
 
 button {
