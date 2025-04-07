@@ -80,7 +80,7 @@ def sign_up(request):
             
             email_subject  = 'ACCOUNT CREATED SUCCESSFULLY'
             email = user.email
-            email_body = render_to_string('garage/email.html', {
+            email_body = render_to_string('accounts/registration_email.html', {
                 
                 'user': user,
                 
@@ -131,12 +131,15 @@ class AdminDashboardView(LoginRequiredMixin, TemplateView):
         maintenance_count = Maintenance.objects.all().count() 
         repair_count = Repair.objects.all().count()        
         appointment_count =  Appointment.objects.all().count()
+        open_appointments = Appointment.objects.filter(status='open').count()
+        customers = CustomUser.objects.filter(role__role_name='customer').count()
 
-        
         context['vehicle_count'] = vehicle_count
         context['maintenance_count'] = maintenance_count
         context['repair_count'] = repair_count
         context['appointment_count'] = appointment_count
+        context['open_appointments'] = open_appointments
+        context['customers'] = customers
 
         return context
 
